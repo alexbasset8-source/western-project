@@ -1,0 +1,162 @@
+[
+  {
+    "name": "Elias Ward",
+    "role_id": "sheriff",
+    "state": "alive",
+    "temperament": "strict, calme",
+    "objective": "maintenir l'ordre",
+    "caution": 80,
+    "aggression": 50,
+    "reputation": {
+      "law": 60,
+      "crime": 0,
+      "commerce": 10,
+      "reliability": 45,
+      "combat": 55
+    }
+  },
+  {
+    "name": "Martha Bell",
+    "role_id": "merchant",
+    "state": "alive",
+    "temperament": "prudente, methodique",
+    "objective": "livrer des marchandises sans risque",
+    "caution": 85,
+    "aggression": 10,
+    "reputation": {
+      "law": 15,
+      "crime": 0,
+      "commerce": 55,
+      "reliability": 70,
+      "combat": 5
+    }
+  },
+  {
+    "name": "Isaac Reed",
+    "role_id": "merchant",
+    "state": "alive",
+    "temperament": "ambitieux, presse",
+    "objective": "faire plus de profits",
+    "caution": 50,
+    "aggression": 15,
+    "reputation": {
+      "law": 10,
+      "crime": 0,
+      "commerce": 65,
+      "reliability": 35,
+      "combat": 10
+    }
+  },
+  {
+    "name": "Nora Vale",
+    "role_id": "bounty_hunter",
+    "state": "alive",
+    "temperament": "patiente, efficace",
+    "objective": "capturer les criminels recherches",
+    "caution": 80,
+    "aggression": 55,
+    "reputation": {
+      "law": 45,
+      "crime": 0,
+      "commerce": 5,
+      "reliability": 60,
+      "combat": 70
+    }
+  },
+  {
+    "name": "Silas Crow",
+    "role_id": "bounty_hunter",
+    "state": "alive",
+    "temperament": "brutal, direct",
+    "objective": "eliminer les criminels dangereux",
+    "caution": 45,
+    "aggression": 85,
+    "reputation": {
+      "law": 35,
+      "crime": 5,
+      "commerce": 0,
+      "reliability": 35,
+      "combat": 80
+    }
+  },
+  {
+    "name": "Cole Maddox",
+    "role_id": "brigand",
+    "state": "alive",
+    "temperament": "violent, impatient",
+    "objective": "attaquer les convois",
+    "caution": 20,
+    "aggression": 90,
+    "reputation": {
+      "law": 0,
+      "crime": 65,
+      "commerce": 0,
+      "reliability": 15,
+      "combat": 70
+    }
+  },
+  {
+    "name": "Jonah Rusk",
+    "role_id": "brigand",
+    "state": "alive",
+    "temperament": "calculateur, opportuniste",
+    "objective": "voler sans se faire prendre",
+    "caution": 80,
+    "aggression": 55,
+    "reputation": {
+      "law": 0,
+      "crime": 55,
+      "commerce": 10,
+      "reliability": 40,
+      "combat": 50
+    }
+  },
+  {
+    "name": "Abel Cross",
+    "role_id": "brigand",
+    "state": "alive",
+    "temperament": "nerveux, instable",
+    "objective": "survivre et gagner vite",
+    "caution": 25,
+    "aggression": 60,
+    "reputation": {
+      "law": 0,
+      "crime": 45,
+      "commerce": 0,
+      "reliability": 10,
+      "combat": 45
+    }
+  },
+  {
+    "name": "Victor Kane",
+    "role_id": "brigand",
+    "state": "alive",
+    "temperament": "chef naturel, froid",
+    "objective": "organiser les attaques",
+    "caution": 75,
+    "aggression": 80,
+    "reputation": {
+      "law": 0,
+      "crime": 75,
+      "commerce": 0,
+      "reliability": 45,
+      "combat": 75
+    }
+  },
+  {
+    "name": "Wade Mercer",
+    "role_id": "brigand",
+    "state": "alive",
+    "temperament": "discret, patient",
+    "objective": "tendre des embuscades",
+    "caution": 85,
+    "aggression": 35,
+    "reputation": {
+      "law": 0,
+      "crime": 50,
+      "commerce": 0,
+      "reliability": 35,
+      "combat": 55
+    }
+  }
+]

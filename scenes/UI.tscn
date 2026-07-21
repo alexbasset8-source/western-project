@@ -1,0 +1,188 @@
+[gd_scene load_steps=2 format=3 uid="uid://frontier_ui"]
+
+[ext_resource type="Script" path="res://scripts/UIController.gd" id="1_ui_script"]
+
+[node name="UI" type="CanvasLayer"]
+script = ExtResource("1_ui_script")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="HudPanel" type="PanelContainer" parent="Root"]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 400.0
+offset_bottom = 340.0
+
+[node name="HudMargin" type="MarginContainer" parent="Root/HudPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="HudVBox" type="VBoxContainer" parent="Root/HudPanel/HudMargin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Frontier Town 0.5"
+
+[node name="RoleLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+layout_mode = 2
+text = "Role: Aucun"
+
+[node name="MissionLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.75, 0.85, 1, 1)
+text = "Mission: —"
+
+[node name="StateLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+layout_mode = 2
+text = "Etat: vivant"
+
+[node name="WoundsLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+layout_mode = 2
+text = "Blessures: 0/3"
+
+[node name="MoneyLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+layout_mode = 2
+text = "Argent: $0"
+
+[node name="BountyLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+layout_mode = 2
+text = "Prime: $0"
+
+[node name="ZoneLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+layout_mode = 2
+text = "Zone: Prairies"
+
+[node name="DayLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+layout_mode = 2
+text = "Jour: 1"
+
+[node name="ActionLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+layout_mode = 2
+autowrap_mode = 3
+text = "E : action de role"
+
+[node name="HelpLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+layout_mode = 2
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
+theme_override_font_sizes/font_size = 12
+text = "Fleches: deplacer | E: action | H: soins"
+
+[node name="RolesPanel" type="PanelContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -300.0
+offset_right = 400.0
+offset_bottom = -16.0
+
+[node name="RolesMargin" type="MarginContainer" parent="Root/RolesPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="RolesVBox" type="VBoxContainer" parent="Root/RolesPanel/RolesMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LogPanel" type="PanelContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -420.0
+offset_top = -360.0
+offset_right = -16.0
+offset_bottom = -16.0
+
+[node name="LogMargin" type="MarginContainer" parent="Root/LogPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Log" type="RichTextLabel" parent="Root/LogPanel/LogMargin"]
+layout_mode = 2
+bbcode_enabled = true
+text = "Journal de ville"
+fit_content = true
+
+[node name="DeathPanel" type="PanelContainer" parent="Root"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -220.0
+offset_right = 280.0
+offset_bottom = 220.0
+
+[node name="DeathMargin" type="MarginContainer" parent="Root/DeathPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="DeathVBox" type="VBoxContainer" parent="Root/DeathPanel/DeathMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="DeathTitle" type="Label" parent="Root/DeathPanel/DeathMargin/DeathVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Mort definitive"
+horizontal_alignment = 1
+
+[node name="DeathSummary" type="RichTextLabel" parent="Root/DeathPanel/DeathMargin/DeathVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 80)
+bbcode_enabled = true
+fit_content = true
+text = "Votre personnage est mort."
+
+[node name="HistoryLabel" type="Label" parent="Root/DeathPanel/DeathMargin/DeathVBox"]
+layout_mode = 2
+text = "Historique des morts"
+
+[node name="DeathHistory" type="RichTextLabel" parent="Root/DeathPanel/DeathMargin/DeathVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 90)
+bbcode_enabled = true
+fit_content = true
+text = ""
+
+[node name="NameLabel" type="Label" parent="Root/DeathPanel/DeathMargin/DeathVBox"]
+layout_mode = 2
+text = "Nom du nouveau personnage"
+
+[node name="NameInput" type="LineEdit" parent="Root/DeathPanel/DeathMargin/DeathVBox"]
+layout_mode = 2
+placeholder_text = "Voyageur 2"
+
+[node name="RespawnButton" type="Button" parent="Root/DeathPanel/DeathMargin/DeathVBox"]
+layout_mode = 2
+text = "Recommencer"

@@ -1,0 +1,74 @@
+{
+  "sheriff": [
+    {
+      "id": "arrest_two",
+      "title": "Arreter 2 brigands",
+      "goal": 2,
+      "action": "arrest",
+      "reward_money": 25,
+      "reward_rep": {"law": 8}
+    },
+    {
+      "id": "keep_order",
+      "title": "Maintenir l'ordre (3 arrestations)",
+      "goal": 3,
+      "action": "arrest",
+      "reward_money": 35,
+      "reward_rep": {"law": 10, "combat": 3}
+    }
+  ],
+  "merchant": [
+    {
+      "id": "deliver_three",
+      "title": "Livrer 3 convois",
+      "goal": 3,
+      "action": "transport",
+      "reward_money": 40,
+      "reward_rep": {"commerce": 10, "reliability": 8}
+    },
+    {
+      "id": "safe_route",
+      "title": "Completer 2 livraisons",
+      "goal": 2,
+      "action": "transport",
+      "reward_money": 20,
+      "reward_rep": {"commerce": 6}
+    }
+  ],
+  "bounty_hunter": [
+    {
+      "id": "collect_two",
+      "title": "Encaisser 2 primes",
+      "goal": 2,
+      "action": "bounty",
+      "reward_money": 30,
+      "reward_rep": {"combat": 8, "law": 5}
+    },
+    {
+      "id": "hunt_wanted",
+      "title": "Traquer 3 criminels",
+      "goal": 3,
+      "action": "bounty",
+      "reward_money": 25,
+      "reward_rep": {"combat": 6}
+    }
+  ],
+  "brigand": [
+    {
+      "id": "raid_two",
+      "title": "Reussir 2 attaques de convoi",
+      "goal": 2,
+      "action": "raid",
+      "reward_money": 35,
+      "reward_rep": {"crime": 10}
+    },
+    {
+      "id": "loot_route",
+      "title": "Piller 3 convois",
+      "goal": 3,
+      "action": "raid",
+      "reward_money": 45,
+      "reward_rep": {"crime": 12}
+    }
+  ]
+}

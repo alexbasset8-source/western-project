@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://frontier_world"]
+
+[ext_resource type="Script" path="res://scripts/World.gd" id="1_world_script"]
+[ext_resource type="PackedScene" path="res://scenes/SimulatedCharacter.tscn" id="2_sim_character"]
+
+[node name="World" type="Node2D"]
+script = ExtResource("1_world_script")
+simulated_character_scene = ExtResource("2_sim_character")
+
+[node name="Map" type="Node2D" parent="."]
+
+[node name="Zones" type="Node2D" parent="."]
+
+[node name="Collisions" type="Node2D" parent="."]
+
+[node name="Characters" type="Node2D" parent="."]

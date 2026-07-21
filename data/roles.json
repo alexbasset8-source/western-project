@@ -1,0 +1,22 @@
+{
+  "sheriff": {
+    "name": "Sheriff",
+    "slots": 1,
+    "description": "Maintient l'ordre et repond aux crimes."
+  },
+  "merchant": {
+    "name": "Marchand",
+    "slots": 2,
+    "description": "Transporte et vend des marchandises."
+  },
+  "bounty_hunter": {
+    "name": "Chasseur de primes",
+    "slots": 2,
+    "description": "Traque les criminels recherches."
+  },
+  "brigand": {
+    "name": "Brigand",
+    "slots": 5,
+    "description": "Attaque les convois et vit hors-la-loi."
+  }
+}
