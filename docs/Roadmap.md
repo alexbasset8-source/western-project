@@ -39,7 +39,7 @@ Rôles validés pour Frontier Town :
 
 ## Phase 1 - Prototype Frontier Town 0.1
 
-Statut : en cours.
+Statut : validé.
 
 Objectif :
 Créer une première version jouable qui prouve le coeur du concept : rôles limités, files d'attente, mort définitive et succession.
@@ -69,6 +69,8 @@ Déjà fait :
 
 ## Phase 2 - Frontier Town 0.2 : actions de rôle
 
+Statut : validé.
+
 Objectif :
 Faire en sorte que le joueur influence directement la simulation.
 
@@ -83,6 +85,8 @@ Résultat attendu :
 Le joueur peut agir sur le journal de ville, provoquer des conséquences et participer à l'équilibre local.
 
 ## Phase 3 - Frontier Town 0.3 : conséquences et économie
+
+Statut : validé.
 
 Objectif :
 Donner plus de poids aux actions.
@@ -107,6 +111,8 @@ Dans Frontier Town, la réputation ne bloque pas encore les rôles. Elle sert à
 
 ## Phase 4 - Frontier Town 0.4 : danger, blessure et prison
 
+Statut : validé.
+
 Objectif :
 Rendre la mort définitive sérieuse sans être trop arbitraire.
 
@@ -119,6 +125,8 @@ Fonctionnalités :
 - Meilleure distinction entre arrestation, capture et mort.
 
 ## Phase 5 - Frontier Town 0.5 : boucle jouable complète
+
+Statut : validé.
 
 Objectif :
 Obtenir une mini-démo solo cohérente.
@@ -206,15 +214,7 @@ Tester le jeu avec une petite communauté.
 
 La prochaine étape recommandée est :
 
-Frontier Town 0.2 - actions de rôle.
+Phase 6
 
-Objectif :
-Donner au joueur une action utile avec la touche E selon son rôle actuel.
 
-Actions minimales :
-- Marchand : lancer un transport.
-- Brigand : attaquer un convoi.
-- Sheriff : arrêter un brigand recherché.
-- Chasseur de primes : traquer une prime.
-- Sans rôle : demander un rôle ou consulter les files.
 
