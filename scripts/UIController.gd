@@ -59,7 +59,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _build_queue_ui() -> void:
 	var header = Label.new()
-	header.text = "Files d'attente — cliquez pour rejoindre / quitter"
+	header.text = "Files d'attente  cliquez pour rejoindre / quitter"
 	header.add_theme_font_size_override("font_size", 13)
 	roles_vbox.add_child(header)
 
@@ -127,7 +127,7 @@ func _refresh_queue_ui() -> void:
 		elif player_role == role_id:
 			position_text = " | Vous : titulaire"
 
-		row["info"].text = "%s — %s\nFile : %s%s" % [
+		row["info"].text = "%s  %s\nFile : %s%s" % [
 			RoleManager.get_role_name(role_id),
 			holder_text,
 			queue_text,
@@ -225,7 +225,7 @@ func _build_death_history_text() -> String:
 	var lines: Array[String] = []
 	for record in GameState.death_history:
 		lines.append(
-			"- Jour %d : %s (%s) — %s" % [
+			"- Jour %d : %s (%s)  %s" % [
 				record.get("world_day", 0),
 				record.get("name", "?"),
 				record.get("role", "Aucun"),
@@ -270,16 +270,26 @@ func _build_log_text() -> String:
 		else:
 			text = str(entry)
 			event_type = ""
-		match event_type:
-			"death":
-				lines.append("[color=#e05555]✗ %s[/color]" % text)
-			"promotion":
-				lines.append("[color=#55c46e]★ %s[/color]" % text)
-			"player":
-				lines.append("[color=#e8c84a]▶ %s[/color]" % text)
-			"danger":
-				lines.append("[color=#e08030]! %s[/color]" % text)
-			_:
-				lines.append("- %s" % text)
+		# Détection des messages liés aux variables globales
+		if text.find("moral") != -1 or text.find("Moral") != -1:
+			lines.append("[color=#55c46e] %s[/color]" % text)
+		elif text.find("criminalite") != -1 or text.find("Criminalite") != -1 or text.find("criminalité") != -1 or text.find("Criminalité") != -1:
+			lines.append("[color=#e08030]! %s[/color]" % text)
+		elif text.find("economie") != -1 or text.find("Economie") != -1 or text.find("économie") != -1 or text.find("Économie") != -1:
+			lines.append("[color=#e8c84a] %s[/color]" % text)
+		elif text.find("ville est en") != -1 or text.find("ville devient") != -1:
+			lines.append("[color=#55c46e] %s[/color]" % text)
+		else:
+			match event_type:
+				"death":
+					lines.append("[color=#e05555] %s[/color]" % text)
+				"promotion":
+					lines.append("[color=#55c46e] %s[/color]" % text)
+				"player":
+					lines.append("[color=#e8c84a] %s[/color]" % text)
+				"danger":
+					lines.append("[color=#e08030]! %s[/color]" % text)
+				_:
+					lines.append("- %s" % text)
 	return "
 ".join(lines)

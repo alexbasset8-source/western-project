@@ -13,7 +13,11 @@ func save_game() -> void:
 		"death_history": GameState.death_history,
 		"world_day": GameState.world_day,
 		"event_log": GameState.event_log,
-		"queues": RoleManager.queues
+		"queues": RoleManager.queues,
+		"town_morale": GameState.town_morale,
+		"crime_level": GameState.crime_level,
+		"economy_stability": GameState.economy_stability,
+		"goods_price": GameState.goods_price
 	}
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -40,6 +44,11 @@ func load_game() -> bool:
 	for role_id in RoleManager.queues.keys():
 		if queues.has(role_id):
 			RoleManager.queues[role_id] = queues[role_id]
+	# Charger les variables globales
+	GameState.town_morale = int(parsed.get("town_morale", 50))
+	GameState.crime_level = int(parsed.get("crime_level", 30))
+	GameState.economy_stability = int(parsed.get("economy_stability", 70))
+	GameState.goods_price = float(parsed.get("goods_price", 1.0))
 	return true
 
 func delete_save() -> void:

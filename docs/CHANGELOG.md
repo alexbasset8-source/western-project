@@ -15,24 +15,30 @@
   - Ajout de `crime_level` (0-100) pour suivre le niveau de criminalité.
   - Ajout de `economy_stability` (0-100) pour suivre la stabilité économique.
   - Ajout de `goods_price` (multiplicateur de prix) pour ajuster les prix en fonction de l'offre/demande.
-  - Fonctions de modification : `adjust_town_morale()`, `adjust_crime_level()`, `adjust_economy_stability()`, `get_goods_price()`.
+  - Fonctions de modification : `adjust_town_morale()`, `adjust_crime_level()`, `adjust_economy_stability()`, `adjust_goods_price()`, `get_goods_price()`.
 
 - **Intégration des variables globales** :
   - `attempt_arrest()` (Sheriff) impacte maintenant `town_morale` (+3) et `crime_level` (-5).
-  - `attack_convoy()` (Brigand) impacte maintenant `crime_level` (+3) et `town_morale` (-2).
+  - `attack_convoy()` (Brigand) impacte maintenant `crime_level` (+3) et `town_morale` (-2), et augmente `goods_price` (x1.1).
   - `transport_goods()` (Marchand) impacte maintenant `economy_stability` (+2) et utilise `goods_price` pour calculer les gains.
   - `track_bounty()` (Chasseur de primes) impacte maintenant `town_morale` (+4) et `crime_level` (-4).
 
 - **Feedback utilisateur** : Messages dans le journal pour les changements de seuils (ex : "La ville est en colère ! Moral : 15").
+
+- **Sauvegarde des variables globales** : Les variables `town_morale`, `crime_level`, `economy_stability` et `goods_price` sont maintenant sauvegardées et chargées.
+
+- **Tests unitaires** :
+  - `tests/test_game_state_globals.gd` : Tests pour valider les fonctions de modification des variables globales.
 
 - **Documentation** :
   - `BG-001_PHASE1_TICKET.md` : Ticket détaillé pour la Phase 1 (Fondations).
   - `RECOMMENDATIONS_AVOID_REPETITIVITY.md` : Recommandations pour éviter la répétitivité.
 
 ### **🔧 Modifié**
-- `scripts/GameState.gd` : Ajout des variables globales et fonctions de modification.
-- `scripts/TownActions.gd` : Intégration avec les variables globales.
-- `scripts/UIController.gd` : Affichage des événements liés aux variables globales.
+- `scripts/GameState.gd` : Ajout des variables globales, fonctions de modification, et vérification des seuils.
+- `scripts/TownActions.gd` : Intégration avec les variables globales pour toutes les actions existantes.
+- `scripts/UIController.gd` : Affichage des événements liés aux variables globales avec couleurs spécifiques.
+- `scripts/SaveManager.gd` : Sauvegarde et chargement des variables globales.
 - `docs/BACKLOG.md` : Mise à jour de BG-001 et ajout des sous-tâches.
 
 ### **📝 Documentation**
@@ -44,7 +50,7 @@
 
 ### **📦 Ajouté**
 - **Files d'attente sélectionnables** : Panneau interactif pour rejoindre/quitter les files de rôle.
-- **Missions par rôle** : Système de missions automatiques (ex : "Arreter 2 brigands" pour le Sheriff).
+- **Missions par rôle** : Système de missions automatiques (ex : "Arrêter 2 brigands" pour le Sheriff).
 - **Système de soins** : Soins au saloon ($10) et à la boutique ($15) pour réduire les blessures.
 - **Blessures avant la mort** : 0-3 blessures par personnage (ralentissement, vulnérabilité).
 - **Prison fonctionnelle** : 4 tours de peine par défaut, avec options d'évasion (35% de réussite).
@@ -59,7 +65,7 @@
 - `scripts/Player.gd` : Gestion de la création de nouveau personnage.
 - `scripts/SaveManager.gd` : Sauvegarde des nouvelles données (blessures, missions, etc.).
 
-### **🎯 Nouveaux événements**
+### **🎉 Nouveaux événements**
 - **Blessures** : Messages détaillés (légère/grave/critique) dans le journal.
 - **Prison** : Notifications de début/fin de peine.
 - **Mort** : Écran de résumé + historique des morts.
@@ -138,7 +144,7 @@
 - Journal de ville basique.
 
 ---
-## **📌 Conventions pour ce fichier**
+## **📜 Conventions pour ce fichier**
 
 ### **Format des versions**
 - **`[X.Y.Z]`** : Version majeure.mineure.correctif.
@@ -162,9 +168,9 @@
    **Version** | **Date prévue** | **Contenu principal** | **Statut** |
  |-------------|-----------------|-----------------------|------------|
  | 0.5.1 | 27 juillet 2026 | Intégration des variables globales (Phase 1 BG-001) | 🟡 En développement |
- | 0.6.0 | Août 2026 | Actions variées par rôle (Phase 2 BG-001) | ⏳ Planifié |
- | 0.7.0 | Août 2026 | Événements dynamiques (Phase 3 BG-001) | ⏳ Planifié |
- | 0.8.0 | Septembre 2026 | Vertical Slice (Phase 6 Roadmap) | ⏳ Planifié |
+ | 0.6.0 | Août 2026 | Actions variées par rôle (Phase 2 BG-001) | 📅 Planifié |
+ | 0.7.0 | Août 2026 | Événements dynamiques (Phase 3 BG-001) | 📅 Planifié |
+ | 0.8.0 | Septembre 2026 | Vertical Slice (Phase 6 Roadmap) | 📅 Planifié |
 
 ---
 *Dernière mise à jour : 26 juillet 2026*

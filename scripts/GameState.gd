@@ -19,6 +19,12 @@ var player_name = "Voyageur"
 var player_generation = 1
 var world_day = 1
 
+# Variables globales pour l'équilibrage du monde
+var town_morale := 50  # 0-100 : Moral général de la ville
+var crime_level := 30  # 0-100 : Niveau de criminalité
+var economy_stability := 70  # 0-100 : Stabilité économique
+var goods_price := 1.0  # Multiplicateur de prix
+
 func _ready() -> void:
 	load_initial_data()
 	if SaveManager.has_save():
@@ -191,6 +197,67 @@ func kill_first_holder(role_id: String) -> void:
 		add_event("Aucun titulaire a faire disparaitre pour %s." % RoleManager.get_role_name(role_id))
 		return
 	InjuryManager.harm_character(holders[0].get("name", ""), "incident de debug", 3)
+
+# Fonctions de modification des variables globales avec clamp et effets de seuil
+func adjust_town_morale(amount: int) -> void:
+	var old_morale = town_morale
+	town_morale = clamp(town_morale + amount, 0, 100)
+	_check_morale_thresholds(old_morale, town_morale)
+	state_changed.emit()
+
+func adjust_crime_level(amount: int) -> void:
+	var old_crime = crime_level
+	crime_level = clamp(crime_level + amount, 0, 100)
+	_check_crime_thresholds(old_crime, crime_level)
+	state_changed.emit()
+
+func adjust_economy_stability(amount: int) -> void:
+	var old_economy = economy_stability
+	economy_stability = clamp(economy_stability + amount, 0, 100)
+	_check_economy_thresholds(old_economy, economy_stability)
+	state_changed.emit()
+
+func adjust_goods_price(multiplier: float) -> void:
+	goods_price = clamp(goods_price * multiplier, 0.5, 2.0)
+	state_changed.emit()
+
+func get_goods_price() -> float:
+	return goods_price
+
+# Vérification des seuils et affichage des messages
+func _check_morale_thresholds(old_value: int, new_value: int) -> void:
+	if old_value < 20 and new_value >= 20:
+		add_event("La ville reprend espoir. Moral : %d" % new_value)
+	elif old_value >= 20 and new_value < 20:
+		add_event("La ville est en colere ! Moral : %d" % new_value)
+	elif old_value < 50 and new_value >= 50:
+		add_event("Le moral de la ville augmente ! Moral : %d" % new_value)
+	elif old_value >= 50 and new_value < 50:
+		add_event("Le moral de la ville diminue. Moral : %d" % new_value)
+	elif old_value < 80 and new_value >= 80:
+		add_event("La ville est en fete ! Moral : %d" % new_value)
+
+func _check_crime_thresholds(old_value: int, new_value: int) -> void:
+	if old_value < 20 and new_value >= 20:
+		add_event("La criminalite augmente. Niveau : %d" % new_value)
+	elif old_value >= 20 and new_value < 20:
+		add_event("La ville devient plus sure. Criminalite : %d" % new_value)
+	elif old_value < 50 and new_value >= 50:
+		add_event("La criminalite atteint un niveau inquietant ! Niveau : %d" % new_value)
+	elif old_value >= 50 and new_value < 50:
+		add_event("La criminalite diminue. Niveau : %d" % new_value)
+	elif old_value < 80 and new_value >= 80:
+		add_event("La ville est infestee de criminels ! Criminalite : %d" % new_value)
+
+func _check_economy_thresholds(old_value: int, new_value: int) -> void:
+	if old_value < 30 and new_value >= 30:
+		add_event("L'economie se stabilise. Stabilite : %d" % new_value)
+	elif old_value >= 30 and new_value < 30:
+		add_event("L'economie est en crise ! Stabilite : %d" % new_value)
+	elif old_value < 70 and new_value >= 70:
+		add_event("L'economie prospere ! Stabilite : %d" % new_value)
+	elif old_value >= 70 and new_value < 70:
+		add_event("L'economie ralentit. Stabilite : %d" % new_value)
 
 func _load_json_array(file_path: String) -> Array:
 	var data = _load_json(file_path)

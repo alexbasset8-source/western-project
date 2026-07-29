@@ -14,11 +14,15 @@ func transport_goods(actor: Dictionary) -> void:
 		if not brigand.is_empty() and brigand.get("state", "alive") != "dead":
 			attack_convoy(brigand, actor)
 			return
-	var payout = randi_range(15, 30)
-	GameState.adjust_money(actor_name, payout)
+	# Calcul des gains avec le multiplicateur de prix
+	var base_payout = randi_range(15, 30)
+	var final_payout = int(base_payout * GameState.get_goods_price())
+	GameState.adjust_money(actor_name, final_payout)
 	ReputationManager.add_reputation(actor, "commerce", 3)
 	ReputationManager.add_reputation(actor, "reliability", 2)
-	GameState.add_event("%s livre sa cargaison et gagne $%d." % [actor_name, payout])
+	GameState.add_event("%s livre sa cargaison et gagne $%d." % [actor_name, final_payout])
+	# Impact sur la stabilité économique
+	GameState.adjust_economy_stability(2)
 	MissionManager.record_progress(actor_name, "transport")
 
 func attack_convoy(brigand: Dictionary, merchant: Dictionary = {}) -> void:
@@ -49,8 +53,13 @@ func attack_convoy(brigand: Dictionary, merchant: Dictionary = {}) -> void:
 		ReputationManager.add_reputation(brigand, "crime", 5)
 		GameState.add_event("%s disparait avec $%d du convoi." % [brigand_name, loot])
 		raid_success = true
+	# Impact sur la criminalité et le moral
 	if raid_success:
-		MissionManager.record_progress(brigand_name, "raid")
+		GameState.adjust_crime_level(3)
+		GameState.adjust_town_morale(-2)
+		# Augmenter le prix des marchandises (pénurie)
+		GameState.adjust_goods_price(1.1)
+	MissionManager.record_progress(brigand_name, "raid")
 
 func track_bounty(hunter: Dictionary, target: Dictionary = {}) -> void:
 	if hunter.is_empty() or hunter.get("state", "alive") == "dead":
@@ -73,6 +82,9 @@ func track_bounty(hunter: Dictionary, target: Dictionary = {}) -> void:
 		ReputationManager.add_reputation(hunter, "combat", 5)
 		ReputationManager.add_reputation(hunter, "law", 3)
 		GameState.add_event("%s capture %s et encaisse la prime." % [hunter_name, target_name])
+		# Impact sur le moral et la criminalité
+		GameState.adjust_town_morale(4)
+		GameState.adjust_crime_level(-4)
 		MissionManager.record_progress(hunter_name, "bounty")
 	else:
 		if randf() < 0.40:
@@ -86,6 +98,9 @@ func track_bounty(hunter: Dictionary, target: Dictionary = {}) -> void:
 				target["bounty"] = 0
 			ReputationManager.add_reputation(hunter, "combat", 3)
 			GameState.add_event("%s abat %s et recupere la prime." % [hunter_name, target_name])
+			# Impact sur le moral (moins positif que la capture)
+			GameState.adjust_town_morale(2)
+			GameState.adjust_crime_level(-2)
 			MissionManager.record_progress(hunter_name, "bounty")
 		else:
 			GameState.add_event("%s echappe a %s dans le maquis." % [target_name, hunter_name])
@@ -106,6 +121,9 @@ func attempt_arrest(officer: Dictionary, target: Dictionary = {}) -> void:
 		GameState.mark_prisoner(target_name)
 		ReputationManager.add_reputation(officer, "law", 5)
 		GameState.add_event("%s est mis en prison par %s." % [target_name, officer_name])
+		# Impact sur le moral et la criminalité
+		GameState.adjust_town_morale(3)
+		GameState.adjust_crime_level(-5)
 		MissionManager.record_progress(officer_name, "arrest")
 	else:
 		if randf() < 0.30:
@@ -116,9 +134,14 @@ func attempt_arrest(officer: Dictionary, target: Dictionary = {}) -> void:
 			ReputationManager.add_reputation(officer, "law", 3)
 			ReputationManager.add_reputation(officer, "combat", 2)
 			GameState.add_event("%s resiste et est abattu par %s." % [target_name, officer_name])
+			# Impact sur le moral (moins positif que l'arrestation)
+			GameState.adjust_town_morale(1)
+			GameState.adjust_crime_level(-2)
 			MissionManager.record_progress(officer_name, "arrest")
 		else:
 			GameState.add_event("%s s'enfuit de %s." % [target_name, officer_name])
+			# Impact négatif sur le moral
+			GameState.adjust_town_morale(-1)
 
 func duel(a: Dictionary, b: Dictionary) -> void:
 	if a.is_empty() or b.is_empty() or a.get("name", "") == b.get("name", ""):
