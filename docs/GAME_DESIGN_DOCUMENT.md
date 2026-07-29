@@ -2,7 +2,7 @@
 
 # Frontier Town - Game Design Document
 
-Version : 0.1
+Version : 0.2
 
 ---
 
@@ -42,6 +42,7 @@ Exemple :
 - Marchands
 - Chasseurs de primes
 - Brigands
+- Adjoints (Deputy)
 
 Un rôle occupé ne peut pas être obtenu immédiatement.
 
@@ -143,10 +144,22 @@ Responsabilités :
 - arrêter les criminels
 - protéger les marchands
 - intervenir lors des attaques
+- patrouiller dans la ville
+- interroger des témoins
+- organiser une milice citoyenne
+- imposer un couvre-feu
 
 Objectif :
 
 Limiter la criminalité.
+
+**Actions disponibles (BG-001-P2) :**
+- `attempt_arrest` : Tenter d'arrêter un criminel recherché
+- `track_bounty` : Traquer un criminel avec une prime
+- `patrol_town` : Patrouiller dans la ville pour dissuader les criminels
+- `interrogate_witness` : Interroger des témoins pour résoudre des crimes
+- `organize_posse` : Organiser une milice citoyenne pour aider à maintenir l'ordre
+- `enforce_curfew` : Imposer un couvre-feu pour réduire la criminalité nocturne
 
 ---
 
@@ -161,10 +174,22 @@ Responsabilités :
 - organiser des convois
 - vendre des ressources
 - générer de l'activité économique
+- négocier avec les fournisseurs
+- corrompre des officiels
+- faire passer de la contrebande
+- installer des stands temporaires
 
 Objectif :
 
 S'enrichir.
+
+**Actions disponibles (BG-001-P2) :**
+- `transport_goods` : Transporter des marchandises entre les villes
+- `attack_convoy` : Attaquer un convoi de marchandises (réservé aux brigands)
+- `negotiate_prices` : Négocier les prix avec les fournisseurs
+- `bribe_officials` : Corrompre des officiels pour faciliter les affaires
+- `smuggle_contraband` : Faire passer de la contrebande en ville
+- `setup_trade_stand` : Installer un stand de commerce temporaire
 
 ---
 
@@ -196,10 +221,71 @@ Responsabilités :
 - attaquer les convois
 - voler
 - échapper aux autorités
+- tendre des embuscades
+- saboter les infrastructures
+- extorquer de l'argent de protection
+- cacher le butin
 
 Objectif :
 
 Faire fortune malgré les risques.
+
+**Actions disponibles (BG-001-P2) :**
+- `attack_convoy` : Attaquer un convoi de marchandises
+- `ambush_merchants` : Tendre une embuscade aux marchands sur les routes
+- `sabotage_town_infrastructure` : Saboter les infrastructures de la ville
+- `extort_protection_money` : Extorquer de l'argent de protection aux commerçants
+- `hide_loot` : Cacher le butin dans des cachettes secrètes
+
+---
+
+## Adjoint (Deputy)
+
+Mission :
+
+Assister le shérif dans le maintien de l'ordre.
+
+Responsabilités :
+
+- assister aux arrestations
+- patrouiller à la périphérie
+- remettre des mandats
+- surveiller les prisonniers
+
+Objectif :
+
+Aider le shérif et maintenir la loi.
+
+**Actions disponibles (BG-001-P2) :**
+- `assist_arrest` : Assister le shérif dans une arrestation
+- `scout_perimeter` : Patrouiller à la périphérie de la ville pour détecter les menaces
+- `deliver_warrant` : Remettre un mandat d'arrêt à un criminel
+- `guard_prisoner` : Surveiller les prisonniers pour empêcher les évasions
+
+---
+
+## Habitant (Townfolk)
+
+Mission :
+
+Vivre dans la ville et contribuer à la communauté.
+
+Responsabilités :
+
+- signaler des crimes
+- propager des rumeurs
+- organiser des milices citoyennes
+- protester contre les conditions de vie
+
+Objectif :
+
+Survivre et influencer la vie de la communauté.
+
+**Actions disponibles (BG-001-P2) :**
+- `report_crime` : Signaler un crime aux autorités
+- `gossip` : Propager des rumeurs dans la ville
+- `form_militia` : Organiser une milice citoyenne pour se protéger
+- `protest` : Organiser une protestation contre les autorités ou les conditions de vie
 
 ---
 
@@ -277,6 +363,71 @@ Les événements peuvent modifier durablement l'équilibre d'une ville.
 
 ---
 
+# Variables Globales (BG-001-P1)
+
+Le jeu utilise quatre variables globales pour équilibrer le monde :
+
+- **town_morale** (0-100) : Moral général de la ville. Affecte la coopération des habitants et la stabilité.
+- **crime_level** (0-100) : Niveau de criminalité. Influence la fréquence des crimes et la sécurité.
+- **economy_stability** (0-100) : Stabilité économique. Impacte les prix et les opportunités commerciales.
+- **goods_price** (0.5-2.0) : Multiplicateur de prix des marchandises. Affecte les coûts et les profits.
+
+Chaque action des personnages peut influencer une ou plusieurs de ces variables.
+
+---
+
+# Actions par Rôle (BG-001-P2)
+
+## Vue d'ensemble
+
+Chaque rôle dispose de 5+ actions variées, équilibrées et engageantes pour des sessions de 2h+.
+
+### Sheriff (5 actions)
+| Action | Impact Principal | Risque | Récompense |
+|--------|------------------|--------|------------|
+| attempt_arrest | ✓ crime_level, ✓ town_morale | Échec de l'arrestation | Réputation loi +5 |
+| track_bounty | ✓ crime_level, ✓ town_morale | Cible s'échappe | Prime + réputation |
+| patrol_town | ✓ crime_level, ✓ town_morale | Affrontement | Réputation loi +2-4 |
+| interrogate_witness | ✓ crime_level | Faux témoignage | Réputation loi +3 |
+| organize_posse | ✓ crime_level, ✓ town_morale | Affrontement | Réputation loi +3-5 |
+| enforce_curfew | ✗ crime_level (fort) | Impopularité | Réputation loi +4 |
+
+### Brigand (5 actions)
+| Action | Impact Principal | Risque | Récompense |
+|--------|------------------|--------|------------|
+| attack_convoy | ✗ crime_level, ✗ town_morale, ✗ economy | Contre-attaque | Butin $10-25 |
+| ambush_merchants | ✗ crime_level, ✗ town_morale, ✗ economy | Détection | Butin $20-40 |
+| sabotage_town_infrastructure | ✗ economy, ✗ town_morale, ✗ crime | Détection | Réputation crime +6 |
+| extort_protection_money | ✗ crime_level, ✗ town_morale | Résistance | Argent $15-35 |
+| hide_loot | ✓ crime_level (indirect) | Découverte | Sécurité du butin |
+
+### Merchant (5 actions)
+| Action | Impact Principal | Risque | Récompense |
+|--------|------------------|--------|------------|
+| transport_goods | ✓ economy, ✓ town_morale | Attaque | Profit $15-30 |
+| negotiate_prices | ✓ economy, ✗ goods_price | Échec | Réputation commerce +4 |
+| bribe_officials | ✓ economy, ✗ crime | Découverte | Accès privilégié |
+| smuggle_contraband | ✓ economy, ✗ goods_price | Confiscation | Profit $40-80 |
+| setup_trade_stand | ✓ economy, ✓ town_morale | Vol | Profit $25-50 |
+
+### Deputy (4 actions)
+| Action | Impact Principal | Risque | Récompense |
+|--------|------------------|--------|------------|
+| assist_arrest | ✓ crime_level, ✓ town_morale | Blessure | Réputation loi +4 |
+| scout_perimeter | ✓ crime_level, ✓ town_morale | Embuscade | Réputation loi +2-3 |
+| deliver_warrant | ✓ crime_level, ✓ town_morale | Résistance | Réputation loi +5 |
+| guard_prisoner | ✓ crime_level, ✓ town_morale | Évasion | Réputation loi +2-3 |
+
+### Townfolk (4 actions)
+| Action | Impact Principal | Risque | Récompense |
+|--------|------------------|--------|------------|
+| report_crime | ✓ crime_level, ✓ town_morale | Ignoré | Réputation fiabilité +2 |
+| gossip | ✓/✗ town_morale | Conflit | Réputation variable |
+| form_militia | ✓ crime_level, ✓ town_morale | Conflit/inefficacité | Réputation +2-4 |
+| protest | ✓/✗ town_morale | Répression | Réputation variable |
+
+---
+
 # Progression
 
 Le personnage ne progresse pas grâce à des niveaux.
@@ -326,3 +477,19 @@ Le jeu n'intègre pas :
 - progression verticale infinie
 
 Ces exclusions permettent de préserver l'identité du projet.
+
+---
+
+# Historique des versions
+
+## Version 0.2 (BG-001-P2)
+- Ajout de 4 nouvelles actions par rôle (Sheriff, Brigand, Merchant, Deputy, Townfolk)
+- Intégration des variables globales dans toutes les actions
+- Équilibrage des récompenses, risques et cooldowns
+- Tests unitaires pour les valeurs extrêmes (0, 50, 100)
+- Mise à jour de la documentation
+
+## Version 0.1
+- Version initiale du document
+- Définition des piliers du gameplay
+- Description des rôles de base
