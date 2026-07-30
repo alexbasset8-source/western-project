@@ -1,10 +1,9 @@
 extends Node
 # Test unitaire pour les variables globales de GameState (BG-001-P1)
 
-func _ready() -> void:
+async func _ready() -> void:
 	# Attendre que GameState soit prêt
-	
-	await(get_tree().create_timer(0.1), "timeout")
+	await get_tree().create_timer(0.1).timeout
 	
 	print("=== Début des tests pour BG-001-P1 ===")
 	
