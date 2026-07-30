@@ -5,10 +5,20 @@ signal event_logged_typed(message, event_type)
 signal state_changed
 signal player_died(death_record)
 signal player_respawned(character_name)
+signal new_game_started
+signal character_removed(character_name)
 
 var simulation_paused := false
 
+# Indique si la partie en cours provient d'une sauvegarde chargee au demarrage.
+# Utilise par l'ecran de selection de sauvegarde (BG-002).
+var loaded_from_save := false
+
 const PLAYER_SPAWN := Vector2(700, 660)
+
+# Un "jour" correspond a un tick de simulation (voir EventManager.advance_world_day).
+# Une entite morte disparait de la carte 2 jours apres sa mort (BG-003).
+const DAYS_BEFORE_CORPSE_REMOVAL := 2
 
 var characters = []
 var roles = {}
@@ -29,6 +39,7 @@ func _ready() -> void:
 	load_initial_data()
 	if SaveManager.has_save():
 		SaveManager.load_game()
+		loaded_from_save = true
 		add_event("Frontier Town reprend depuis la sauvegarde.")
 	else:
 		characters = _load_json_array("res://data/characters.json")
@@ -54,6 +65,29 @@ func create_new_player(new_name: String) -> void:
 	player_name = trimmed_name
 	characters.append(_build_player_template(player_name))
 	add_event("%s arrive a Frontier Town." % player_name, "player")
+	player_respawned.emit(player_name)
+	state_changed.emit()
+	SaveManager.save_game()
+
+## Efface la sauvegarde existante et demarre une toute nouvelle partie.
+## Appelee uniquement apres confirmation explicite du joueur (BG-002).
+func restart_new_game() -> void:
+	SaveManager.delete_save()
+	event_log = []
+	death_history = []
+	world_day = 1
+	town_morale = 50
+	crime_level = 30
+	economy_stability = 70
+	goods_price = 1.0
+	player_generation = 1
+	player_name = _default_player_name()
+	RoleManager.reset_queues()
+	characters = _load_json_array("res://data/characters.json")
+	ensure_player_character()
+	loaded_from_save = false
+	add_event("Une nouvelle partie commence a Frontier Town.")
+	new_game_started.emit()
 	player_respawned.emit(player_name)
 	state_changed.emit()
 	SaveManager.save_game()
@@ -91,7 +125,27 @@ func add_event(message: String, event_type: String = "") -> void:
 
 func advance_world_day() -> void:
 	world_day += 1
+	_remove_expired_corpses()
 	state_changed.emit()
+
+## Supprime de la carte et de la memoire les entites mortes depuis
+## plus de DAYS_BEFORE_CORPSE_REMOVAL jours (BG-003).
+func _remove_expired_corpses() -> void:
+	var still_present := []
+	for character in characters:
+		if _is_expired_corpse(character):
+			character_removed.emit(character.get("name", ""))
+		else:
+			still_present.append(character)
+	characters = still_present
+
+func _is_expired_corpse(character: Dictionary) -> bool:
+	if character.get("state", "alive") != "dead":
+		return false
+	var death_day = int(character.get("time_of_death", -1))
+	if death_day < 0:
+		return false
+	return world_day - death_day >= DAYS_BEFORE_CORPSE_REMOVAL
 
 func get_player() -> Dictionary:
 	return find_character(player_name)
@@ -153,6 +207,7 @@ func mark_dead(character_name: String, cause: String = "") -> void:
 	character["state"] = "dead"
 	character["wounds"] = InjuryManager.MAX_WOUNDS
 	character["prison_remaining"] = 0
+	character["time_of_death"] = world_day
 	var death_cause = cause if cause != "" else "mort subite"
 	add_event("%s est mort definitivement. (%s)" % [character_name, death_cause], "death")
 	RoleManager.release_role(character)
