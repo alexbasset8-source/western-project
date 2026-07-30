@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://frontier_ui"]
+[gd_scene load_steps=3 format=3 uid="uid://frontier_ui"]
 
 [ext_resource type="Script" path="res://scripts/UIController.gd" id="1_ui_script"]
+[ext_resource type="Script" path="res://scripts/WindowFrame.gd" id="2_window_frame"]
 
 [node name="UI" type="CanvasLayer"]
 script = ExtResource("1_ui_script")
@@ -12,120 +13,312 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-[node name="HudPanel" type="PanelContainer" parent="Root"]
+[node name="HudWindow" type="Panel" parent="Root"]
 layout_mode = 0
 offset_left = 16.0
 offset_top = 16.0
-offset_right = 400.0
-offset_bottom = 340.0
+offset_right = 336.0
+offset_bottom = 392.0
+script = ExtResource("2_window_frame")
+window_id = "hud"
+window_title = "Statut"
 
-[node name="HudMargin" type="MarginContainer" parent="Root/HudPanel"]
+[node name="TitleBar" type="PanelContainer" parent="Root/HudWindow"]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 30.0
+mouse_filter = 0
+
+[node name="TitleRow" type="HBoxContainer" parent="Root/HudWindow/TitleBar"]
 layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="Root/HudWindow/TitleBar/TitleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Statut"
+
+[node name="MinimizeButton" type="Button" parent="Root/HudWindow/TitleBar/TitleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(28, 0)
+text = "_"
+
+[node name="CloseButton" type="Button" parent="Root/HudWindow/TitleBar/TitleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(28, 0)
+text = "x"
+
+[node name="Content" type="MarginContainer" parent="Root/HudWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 30.0
 theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
+theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 12
 
-[node name="HudVBox" type="VBoxContainer" parent="Root/HudPanel/HudMargin"]
+[node name="HudScroll" type="ScrollContainer" parent="Root/HudWindow/Content"]
 layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="HudVBox" type="VBoxContainer" parent="Root/HudWindow/Content/HudScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 5
 
-[node name="TitleLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+[node name="TitleLabel" type="Label" parent="Root/HudWindow/Content/HudScroll/HudVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "Frontier Town 0.5"
 
-[node name="RoleLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+[node name="RoleLabel" type="Label" parent="Root/HudWindow/Content/HudScroll/HudVBox"]
 layout_mode = 2
 text = "Role: Aucun"
 
-[node name="MissionLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+[node name="MissionLabel" type="Label" parent="Root/HudWindow/Content/HudScroll/HudVBox"]
 layout_mode = 2
 autowrap_mode = 3
 theme_override_colors/font_color = Color(0.75, 0.85, 1, 1)
 text = "Mission: —"
 
-[node name="StateLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+[node name="StateLabel" type="Label" parent="Root/HudWindow/Content/HudScroll/HudVBox"]
 layout_mode = 2
 text = "Etat: vivant"
 
-[node name="WoundsLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+[node name="WoundsLabel" type="Label" parent="Root/HudWindow/Content/HudScroll/HudVBox"]
 layout_mode = 2
 text = "Blessures: 0/3"
 
-[node name="MoneyLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+[node name="MoneyLabel" type="Label" parent="Root/HudWindow/Content/HudScroll/HudVBox"]
 layout_mode = 2
 text = "Argent: $0"
 
-[node name="BountyLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+[node name="BountyLabel" type="Label" parent="Root/HudWindow/Content/HudScroll/HudVBox"]
 layout_mode = 2
 text = "Prime: $0"
 
-[node name="ZoneLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+[node name="ZoneLabel" type="Label" parent="Root/HudWindow/Content/HudScroll/HudVBox"]
 layout_mode = 2
 text = "Zone: Prairies"
 
-[node name="DayLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+[node name="DayLabel" type="Label" parent="Root/HudWindow/Content/HudScroll/HudVBox"]
 layout_mode = 2
 text = "Jour: 1"
 
-[node name="ActionLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+[node name="ActionLabel" type="Label" parent="Root/HudWindow/Content/HudScroll/HudVBox"]
 layout_mode = 2
 autowrap_mode = 3
 text = "E : action de role"
 
-[node name="HelpLabel" type="Label" parent="Root/HudPanel/HudMargin/HudVBox"]
+[node name="HelpLabel" type="Label" parent="Root/HudWindow/Content/HudScroll/HudVBox"]
 layout_mode = 2
 autowrap_mode = 3
 theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
 theme_override_font_sizes/font_size = 12
 text = "Fleches: deplacer | E: action | H: soins"
 
-[node name="RolesPanel" type="PanelContainer" parent="Root"]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = -300.0
-offset_right = 400.0
-offset_bottom = -16.0
-
-[node name="RolesMargin" type="MarginContainer" parent="Root/RolesPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 10
-
-[node name="RolesVBox" type="VBoxContainer" parent="Root/RolesPanel/RolesMargin"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="LogPanel" type="PanelContainer" parent="Root"]
+[node name="ResizeHandle" type="Control" parent="Root/HudWindow"]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -420.0
-offset_top = -360.0
-offset_right = -16.0
-offset_bottom = -16.0
+offset_left = -16.0
+offset_top = -16.0
+mouse_default_cursor_shape = 12
+mouse_filter = 0
 
-[node name="LogMargin" type="MarginContainer" parent="Root/LogPanel"]
+[node name="RolesWindow" type="Panel" parent="Root"]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 408.0
+offset_right = 336.0
+offset_bottom = 692.0
+script = ExtResource("2_window_frame")
+window_id = "roles"
+window_title = "Roles"
+
+[node name="TitleBar" type="PanelContainer" parent="Root/RolesWindow"]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 30.0
+mouse_filter = 0
+
+[node name="TitleRow" type="HBoxContainer" parent="Root/RolesWindow/TitleBar"]
 layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="Root/RolesWindow/TitleBar/TitleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Roles"
+
+[node name="MinimizeButton" type="Button" parent="Root/RolesWindow/TitleBar/TitleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(28, 0)
+text = "_"
+
+[node name="CloseButton" type="Button" parent="Root/RolesWindow/TitleBar/TitleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(28, 0)
+text = "x"
+
+[node name="Content" type="MarginContainer" parent="Root/RolesWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 30.0
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="RolesScroll" type="ScrollContainer" parent="Root/RolesWindow/Content"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="RolesVBox" type="VBoxContainer" parent="Root/RolesWindow/Content/RolesScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="ResizeHandle" type="Control" parent="Root/RolesWindow"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -16.0
+offset_top = -16.0
+mouse_default_cursor_shape = 12
+mouse_filter = 0
+
+[node name="LogWindow" type="Panel" parent="Root"]
+layout_mode = 0
+offset_left = 352.0
+offset_top = 16.0
+offset_right = 832.0
+offset_bottom = 692.0
+script = ExtResource("2_window_frame")
+window_id = "log"
+window_title = "Journal de ville"
+
+[node name="TitleBar" type="PanelContainer" parent="Root/LogWindow"]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 30.0
+mouse_filter = 0
+
+[node name="TitleRow" type="HBoxContainer" parent="Root/LogWindow/TitleBar"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="Root/LogWindow/TitleBar/TitleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Journal de ville"
+
+[node name="MinimizeButton" type="Button" parent="Root/LogWindow/TitleBar/TitleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(28, 0)
+text = "_"
+
+[node name="CloseButton" type="Button" parent="Root/LogWindow/TitleBar/TitleRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(28, 0)
+text = "x"
+
+[node name="Content" type="MarginContainer" parent="Root/LogWindow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 30.0
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 12
 
-[node name="Log" type="RichTextLabel" parent="Root/LogPanel/LogMargin"]
+[node name="LogScroll" type="ScrollContainer" parent="Root/LogWindow/Content"]
 layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Log" type="RichTextLabel" parent="Root/LogWindow/Content/LogScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 bbcode_enabled = true
 text = "Journal de ville"
 fit_content = true
+scroll_active = false
+
+[node name="ResizeHandle" type="Control" parent="Root/LogWindow"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -16.0
+offset_top = -16.0
+mouse_default_cursor_shape = 12
+mouse_filter = 0
+
+[node name="Toolbar" type="PanelContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -160.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 52.0
+
+[node name="WindowsButton" type="Button" parent="Root/Toolbar"]
+layout_mode = 2
+text = "Fenetres"
+
+[node name="WindowsMenuPanel" type="PanelContainer" parent="Root"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -130.0
+offset_right = 160.0
+offset_bottom = 130.0
+
+[node name="WindowsMenuMargin" type="MarginContainer" parent="Root/WindowsMenuPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="WindowsMenuVBox" type="VBoxContainer" parent="Root/WindowsMenuPanel/WindowsMenuMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="WindowsMenuTitle" type="Label" parent="Root/WindowsMenuPanel/WindowsMenuMargin/WindowsMenuVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Fenetres"
+horizontal_alignment = 1
+
+[node name="WindowsMenuList" type="VBoxContainer" parent="Root/WindowsMenuPanel/WindowsMenuMargin/WindowsMenuVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="WindowsMenuCloseButton" type="Button" parent="Root/WindowsMenuPanel/WindowsMenuMargin/WindowsMenuVBox"]
+layout_mode = 2
+text = "Fermer"
 
 [node name="DeathPanel" type="PanelContainer" parent="Root"]
 visible = false

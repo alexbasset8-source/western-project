@@ -2,19 +2,19 @@ extends CanvasLayer
 
 const ROLE_ORDER := ["sheriff", "merchant", "bounty_hunter", "brigand"]
 
-@onready var title_label = $Root/HudPanel/HudMargin/HudVBox/TitleLabel
-@onready var role_label = $Root/HudPanel/HudMargin/HudVBox/RoleLabel
-@onready var mission_label = $Root/HudPanel/HudMargin/HudVBox/MissionLabel
-@onready var state_label = $Root/HudPanel/HudMargin/HudVBox/StateLabel
-@onready var wounds_label = $Root/HudPanel/HudMargin/HudVBox/WoundsLabel
-@onready var money_label = $Root/HudPanel/HudMargin/HudVBox/MoneyLabel
-@onready var bounty_label = $Root/HudPanel/HudMargin/HudVBox/BountyLabel
-@onready var zone_label = $Root/HudPanel/HudMargin/HudVBox/ZoneLabel
-@onready var day_label = $Root/HudPanel/HudMargin/HudVBox/DayLabel
-@onready var action_label = $Root/HudPanel/HudMargin/HudVBox/ActionLabel
-@onready var help_label = $Root/HudPanel/HudMargin/HudVBox/HelpLabel
-@onready var roles_vbox = $Root/RolesPanel/RolesMargin/RolesVBox
-@onready var log = $Root/LogPanel/LogMargin/Log
+@onready var title_label = $Root/HudWindow/Content/HudScroll/HudVBox/TitleLabel
+@onready var role_label = $Root/HudWindow/Content/HudScroll/HudVBox/RoleLabel
+@onready var mission_label = $Root/HudWindow/Content/HudScroll/HudVBox/MissionLabel
+@onready var state_label = $Root/HudWindow/Content/HudScroll/HudVBox/StateLabel
+@onready var wounds_label = $Root/HudWindow/Content/HudScroll/HudVBox/WoundsLabel
+@onready var money_label = $Root/HudWindow/Content/HudScroll/HudVBox/MoneyLabel
+@onready var bounty_label = $Root/HudWindow/Content/HudScroll/HudVBox/BountyLabel
+@onready var zone_label = $Root/HudWindow/Content/HudScroll/HudVBox/ZoneLabel
+@onready var day_label = $Root/HudWindow/Content/HudScroll/HudVBox/DayLabel
+@onready var action_label = $Root/HudWindow/Content/HudScroll/HudVBox/ActionLabel
+@onready var help_label = $Root/HudWindow/Content/HudScroll/HudVBox/HelpLabel
+@onready var roles_vbox = $Root/RolesWindow/Content/RolesScroll/RolesVBox
+@onready var log = $Root/LogWindow/Content/LogScroll/Log
 @onready var death_panel = $Root/DeathPanel
 @onready var death_summary = $Root/DeathPanel/DeathMargin/DeathVBox/DeathSummary
 @onready var death_history = $Root/DeathPanel/DeathMargin/DeathVBox/DeathHistory
@@ -26,6 +26,15 @@ const ROLE_ORDER := ["sheriff", "merchant", "bounty_hunter", "brigand"]
 @onready var confirm_new_game_panel = $Root/ConfirmNewGamePanel
 @onready var cancel_new_game_button = $Root/ConfirmNewGamePanel/ConfirmMargin/ConfirmVBox/ConfirmButtonsRow/CancelButton
 @onready var confirm_new_game_button = $Root/ConfirmNewGamePanel/ConfirmMargin/ConfirmVBox/ConfirmButtonsRow/ConfirmButton
+@onready var hud_window = $Root/HudWindow
+@onready var roles_window = $Root/RolesWindow
+@onready var log_window = $Root/LogWindow
+@onready var windows_button = $Root/Toolbar/WindowsButton
+@onready var windows_menu_panel = $Root/WindowsMenuPanel
+@onready var windows_menu_list = $Root/WindowsMenuPanel/WindowsMenuMargin/WindowsMenuVBox/WindowsMenuList
+@onready var windows_menu_close_button = $Root/WindowsMenuPanel/WindowsMenuMargin/WindowsMenuVBox/WindowsMenuCloseButton
+
+var window_manager: WindowManager
 
 var queue_rows: Dictionary = {}
 
@@ -42,10 +51,54 @@ func _ready() -> void:
 	new_game_button.pressed.connect(_on_new_game_pressed)
 	cancel_new_game_button.pressed.connect(_on_cancel_new_game_pressed)
 	confirm_new_game_button.pressed.connect(_on_confirm_new_game_pressed)
+	windows_button.pressed.connect(_on_windows_button_pressed)
+	windows_menu_close_button.pressed.connect(func(): windows_menu_panel.visible = false)
+	_setup_window_manager()
 	_build_queue_ui()
 	refresh()
 	call_deferred("_ensure_respawn_panel_state")
 	call_deferred("_show_start_panel")
+
+## Enregistre les fenetres HUD/Roles/Journal et restaure leur disposition (TCK3).
+func _setup_window_manager() -> void:
+	window_manager = WindowManager.new()
+	add_child(window_manager)
+	window_manager.register(hud_window)
+	window_manager.register(roles_window)
+	window_manager.register(log_window)
+	window_manager.load_layout()
+
+func _on_windows_button_pressed() -> void:
+	_show_windows_menu()
+
+## Construit dynamiquement la liste des fenetres (ouvertes/fermees) avec reouverture (TCK3).
+func _show_windows_menu() -> void:
+	for child in windows_menu_list.get_children():
+		child.queue_free()
+	for window in window_manager.windows:
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+
+		var status_text = "ouverte" if window.visible else "fermee"
+		if window.visible and window.is_minimized():
+			status_text = "reduite"
+		var info = Label.new()
+		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		info.text = "%s (%s)" % [window.window_title, status_text]
+		row.add_child(info)
+
+		var action_button = Button.new()
+		action_button.text = "Afficher"
+		action_button.pressed.connect(func():
+			window_manager.reopen(window)
+			if window.is_minimized():
+				window.set_minimized(false)
+			_show_windows_menu()
+		)
+		row.add_child(action_button)
+
+		windows_menu_list.add_child(row)
+	windows_menu_panel.visible = true
 
 func _unhandled_input(event: InputEvent) -> void:
 	if death_panel.visible or start_panel.visible or confirm_new_game_panel.visible:
@@ -53,6 +106,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventKey:
 		return
 	if not event.pressed or event.echo:
+		return
+	if event.keycode == KEY_TAB:
+		if event.ctrl_pressed:
+			_show_windows_menu()
+		else:
+			window_manager.cycle_windows()
+		get_viewport().set_input_as_handled()
 		return
 	match event.keycode:
 		KEY_1:
