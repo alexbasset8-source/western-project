@@ -16,6 +16,10 @@ func _sync_starting_zone() -> void:
 	ZoneManager.sync_player_zones(self)
 
 func _physics_process(_delta: float) -> void:
+	if GameState.simulation_paused:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 	var player = GameState.get_player()
 	if player.is_empty():
 		return
@@ -37,6 +41,8 @@ func _physics_process(_delta: float) -> void:
 	move_and_slide()
 
 func _unhandled_input(event: InputEvent) -> void:
+	if GameState.simulation_paused:
+		return
 	if not event is InputEventKey:
 		return
 	if not event.pressed or event.echo:

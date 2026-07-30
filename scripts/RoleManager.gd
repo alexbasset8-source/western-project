@@ -64,6 +64,12 @@ func remove_from_all_queues(character_name):
 		queues[queue_role].erase(character_name)
 	_emit_queue_changed()
 
+## Vide toutes les files d'attente. Utilise au demarrage d'une nouvelle partie (BG-002).
+func reset_queues() -> void:
+	for role_id in queues.keys():
+		queues[role_id] = []
+	_emit_queue_changed()
+
 func has_vacancy(role_id):
 	var role = GameState.roles.get(role_id, {})
 	var slots = int(role.get("slots", 0))

@@ -1,0 +1,331 @@
+diff --git a/scenes/UI.tscn b/scenes/UI.tscn
+index b2b42bc..13c7930 100644
+--- a/scenes/UI.tscn
++++ b/scenes/UI.tscn
+@@ -186,3 +186,84 @@ placeholder_text = "Voyageur 2"
+ [node name="RespawnButton" type="Button" parent="Root/DeathPanel/DeathMargin/DeathVBox"]
+ layout_mode = 2
+ text = "Recommencer"
++
++[node name="StartPanel" type="PanelContainer" parent="Root"]
++visible = false
++layout_mode = 1
++anchors_preset = 8
++anchor_left = 0.5
++anchor_top = 0.5
++anchor_right = 0.5
++anchor_bottom = 0.5
++offset_left = -220.0
++offset_top = -140.0
++offset_right = 220.0
++offset_bottom = 140.0
++
++[node name="StartMargin" type="MarginContainer" parent="Root/StartPanel"]
++layout_mode = 2
++theme_override_constants/margin_left = 20
++theme_override_constants/margin_top = 20
++theme_override_constants/margin_right = 20
++theme_override_constants/margin_bottom = 20
++
++[node name="StartVBox" type="VBoxContainer" parent="Root/StartPanel/StartMargin"]
++layout_mode = 2
++theme_override_constants/separation = 12
++
++[node name="StartTitle" type="Label" parent="Root/StartPanel/StartMargin/StartVBox"]
++layout_mode = 2
++theme_override_font_sizes/font_size = 22
++text = "Frontier Town"
++horizontal_alignment = 1
++
++[node name="ContinueButton" type="Button" parent="Root/StartPanel/StartMargin/StartVBox"]
++layout_mode = 2
++text = "Continuer"
++
++[node name="NewGameButton" type="Button" parent="Root/StartPanel/StartMargin/StartVBox"]
++layout_mode = 2
++text = "Nouvelle Partie"
++
++[node name="ConfirmNewGamePanel" type="PanelContainer" parent="Root"]
++visible = false
++layout_mode = 1
++anchors_preset = 8
++anchor_left = 0.5
++anchor_top = 0.5
++anchor_right = 0.5
++anchor_bottom = 0.5
++offset_left = -220.0
++offset_top = -110.0
++offset_right = 220.0
++offset_bottom = 110.0
++
++[node name="ConfirmMargin" type="MarginContainer" parent="Root/ConfirmNewGamePanel"]
++layout_mode = 2
++theme_override_constants/margin_left = 20
++theme_override_constants/margin_top = 20
++theme_override_constants/margin_right = 20
++theme_override_constants/margin_bottom = 20
++
++[node name="ConfirmVBox" type="VBoxContainer" parent="Root/ConfirmNewGamePanel/ConfirmMargin"]
++layout_mode = 2
++theme_override_constants/separation = 12
++
++[node name="ConfirmLabel" type="Label" parent="Root/ConfirmNewGamePanel/ConfirmMargin/ConfirmVBox"]
++layout_mode = 2
++autowrap_mode = 3
++horizontal_alignment = 1
++text = "Cela ecrasera votre sauvegarde actuelle. Etes-vous sur ?"
++
++[node name="ConfirmButtonsRow" type="HBoxContainer" parent="Root/ConfirmNewGamePanel/ConfirmMargin/ConfirmVBox"]
++layout_mode = 2
++theme_override_constants/separation = 12
++alignment = 1
++
++[node name="CancelButton" type="Button" parent="Root/ConfirmNewGamePanel/ConfirmMargin/ConfirmVBox/ConfirmButtonsRow"]
++layout_mode = 2
++text = "Annuler"
++
++[node name="ConfirmButton" type="Button" parent="Root/ConfirmNewGamePanel/ConfirmMargin/ConfirmVBox/ConfirmButtonsRow"]
++layout_mode = 2
++text = "Confirmer"
+diff --git a/scripts/GameState.gd b/scripts/GameState.gd
+index fe04267..415c88f 100644
+--- a/scripts/GameState.gd
++++ b/scripts/GameState.gd
+@@ -5,11 +5,21 @@ signal event_logged_typed(message, event_type)
+ signal state_changed
+ signal player_died(death_record)
+ signal player_respawned(character_name)
++signal new_game_started
++signal character_removed(character_name)
+ 
+ var simulation_paused := false
+ 
++# Indique si la partie en cours provient d'une sauvegarde chargee au demarrage.
++# Utilise par l'ecran de selection de sauvegarde (BG-002).
++var loaded_from_save := false
++
+ const PLAYER_SPAWN := Vector2(700, 660)
+ 
++# Un "jour" correspond a un tick de simulation (voir EventManager.advance_world_day).
++# Une entite morte disparait de la carte 2 jours apres sa mort (BG-003).
++const DAYS_BEFORE_CORPSE_REMOVAL := 2
++
+ var characters = []
+ var roles = {}
+ var locations = []
+@@ -29,6 +39,7 @@ func _ready() -> void:
+ 	load_initial_data()
+ 	if SaveManager.has_save():
+ 		SaveManager.load_game()
++		loaded_from_save = true
+ 		add_event("Frontier Town reprend depuis la sauvegarde.")
+ 	else:
+ 		characters = _load_json_array("res://data/characters.json")
+@@ -58,6 +69,29 @@ func create_new_player(new_name: String) -> void:
+ 	state_changed.emit()
+ 	SaveManager.save_game()
+ 
++## Efface la sauvegarde existante et demarre une toute nouvelle partie.
++## Appelee uniquement apres confirmation explicite du joueur (BG-002).
++func restart_new_game() -> void:
++	SaveManager.delete_save()
++	event_log = []
++	death_history = []
++	world_day = 1
++	town_morale = 50
++	crime_level = 30
++	economy_stability = 70
++	goods_price = 1.0
++	player_generation = 1
++	player_name = _default_player_name()
++	RoleManager.reset_queues()
++	characters = _load_json_array("res://data/characters.json")
++	ensure_player_character()
++	loaded_from_save = false
++	add_event("Une nouvelle partie commence a Frontier Town.")
++	new_game_started.emit()
++	player_respawned.emit(player_name)
++	state_changed.emit()
++	SaveManager.save_game()
++
+ func _build_player_template(name: String) -> Dictionary:
+ 	return {
+ 		"name": name,
+@@ -91,8 +125,28 @@ func add_event(message: String, event_type: String = "") -> void:
+ 
+ func advance_world_day() -> void:
+ 	world_day += 1
++	_remove_expired_corpses()
+ 	state_changed.emit()
+ 
++## Supprime de la carte et de la memoire les entites mortes depuis
++## plus de DAYS_BEFORE_CORPSE_REMOVAL jours (BG-003).
++func _remove_expired_corpses() -> void:
++	var still_present := []
++	for character in characters:
++		if _is_expired_corpse(character):
++			character_removed.emit(character.get("name", ""))
++		else:
++			still_present.append(character)
++	characters = still_present
++
++func _is_expired_corpse(character: Dictionary) -> bool:
++	if character.get("state", "alive") != "dead":
++		return false
++	var death_day = int(character.get("time_of_death", -1))
++	if death_day < 0:
++		return false
++	return world_day - death_day >= DAYS_BEFORE_CORPSE_REMOVAL
++
+ func get_player() -> Dictionary:
+ 	return find_character(player_name)
+ 
+@@ -153,6 +207,7 @@ func mark_dead(character_name: String, cause: String = "") -> void:
+ 	character["state"] = "dead"
+ 	character["wounds"] = InjuryManager.MAX_WOUNDS
+ 	character["prison_remaining"] = 0
++	character["time_of_death"] = world_day
+ 	var death_cause = cause if cause != "" else "mort subite"
+ 	add_event("%s est mort definitivement. (%s)" % [character_name, death_cause], "death")
+ 	RoleManager.release_role(character)
+diff --git a/scripts/Player.gd b/scripts/Player.gd
+index cb53b56..4047306 100644
+--- a/scripts/Player.gd
++++ b/scripts/Player.gd
+@@ -16,6 +16,10 @@ func _sync_starting_zone() -> void:
+ 	ZoneManager.sync_player_zones(self)
+ 
+ func _physics_process(_delta: float) -> void:
++	if GameState.simulation_paused:
++		velocity = Vector2.ZERO
++		move_and_slide()
++		return
+ 	var player = GameState.get_player()
+ 	if player.is_empty():
+ 		return
+@@ -37,6 +41,8 @@ func _physics_process(_delta: float) -> void:
+ 	move_and_slide()
+ 
+ func _unhandled_input(event: InputEvent) -> void:
++	if GameState.simulation_paused:
++		return
+ 	if not event is InputEventKey:
+ 		return
+ 	if not event.pressed or event.echo:
+diff --git a/scripts/RoleManager.gd b/scripts/RoleManager.gd
+index 1b778fe..8adfc38 100644
+--- a/scripts/RoleManager.gd
++++ b/scripts/RoleManager.gd
+@@ -64,6 +64,12 @@ func remove_from_all_queues(character_name):
+ 		queues[queue_role].erase(character_name)
+ 	_emit_queue_changed()
+ 
++## Vide toutes les files d'attente. Utilise au demarrage d'une nouvelle partie (BG-002).
++func reset_queues() -> void:
++	for role_id in queues.keys():
++		queues[role_id] = []
++	_emit_queue_changed()
++
+ func has_vacancy(role_id):
+ 	var role = GameState.roles.get(role_id, {})
+ 	var slots = int(role.get("slots", 0))
+diff --git a/scripts/UIController.gd b/scripts/UIController.gd
+index 3145f3a..ab4629d 100644
+--- a/scripts/UIController.gd
++++ b/scripts/UIController.gd
+@@ -20,6 +20,12 @@ const ROLE_ORDER := ["sheriff", "merchant", "bounty_hunter", "brigand"]
+ @onready var death_history = $Root/DeathPanel/DeathMargin/DeathVBox/DeathHistory
+ @onready var name_input = $Root/DeathPanel/DeathMargin/DeathVBox/NameInput
+ @onready var respawn_button = $Root/DeathPanel/DeathMargin/DeathVBox/RespawnButton
++@onready var start_panel = $Root/StartPanel
++@onready var continue_button = $Root/StartPanel/StartMargin/StartVBox/ContinueButton
++@onready var new_game_button = $Root/StartPanel/StartMargin/StartVBox/NewGameButton
++@onready var confirm_new_game_panel = $Root/ConfirmNewGamePanel
++@onready var cancel_new_game_button = $Root/ConfirmNewGamePanel/ConfirmMargin/ConfirmVBox/ConfirmButtonsRow/CancelButton
++@onready var confirm_new_game_button = $Root/ConfirmNewGamePanel/ConfirmMargin/ConfirmVBox/ConfirmButtonsRow/ConfirmButton
+ 
+ var queue_rows: Dictionary = {}
+ 
+@@ -32,12 +38,17 @@ func _ready() -> void:
+ 	MissionManager.mission_updated.connect(func(_name): refresh())
+ 	respawn_button.pressed.connect(_on_respawn_pressed)
+ 	name_input.text_submitted.connect(func(_text): _on_respawn_pressed())
++	continue_button.pressed.connect(_on_continue_pressed)
++	new_game_button.pressed.connect(_on_new_game_pressed)
++	cancel_new_game_button.pressed.connect(_on_cancel_new_game_pressed)
++	confirm_new_game_button.pressed.connect(_on_confirm_new_game_pressed)
+ 	_build_queue_ui()
+ 	refresh()
+ 	call_deferred("_ensure_respawn_panel_state")
++	call_deferred("_show_start_panel")
+ 
+ func _unhandled_input(event: InputEvent) -> void:
+-	if death_panel.visible:
++	if death_panel.visible or start_panel.visible or confirm_new_game_panel.visible:
+ 		return
+ 	if not event is InputEventKey:
+ 		return
+@@ -184,6 +195,35 @@ func _on_player_respawned(_character_name: String) -> void:
+ func _on_respawn_pressed() -> void:
+ 	GameState.create_new_player(name_input.text)
+ 
++## Affiche l'ecran de selection au demarrage (BG-002).
++## Seule l'option "Nouvelle Partie" est visible si aucune sauvegarde n'existe.
++func _show_start_panel() -> void:
++	continue_button.visible = GameState.loaded_from_save
++	confirm_new_game_panel.visible = false
++	start_panel.visible = true
++	GameState.simulation_paused = true
++
++func _on_continue_pressed() -> void:
++	start_panel.visible = false
++	GameState.simulation_paused = false
++
++func _on_new_game_pressed() -> void:
++	if GameState.loaded_from_save:
++		confirm_new_game_panel.visible = true
++	else:
++		# Aucune sauvegarde a ecraser : la partie deja initialisee peut demarrer.
++		start_panel.visible = false
++		GameState.simulation_paused = false
++
++func _on_cancel_new_game_pressed() -> void:
++	confirm_new_game_panel.visible = false
++
++func _on_confirm_new_game_pressed() -> void:
++	confirm_new_game_panel.visible = false
++	start_panel.visible = false
++	GameState.restart_new_game()
++	GameState.simulation_paused = false
++
+ func _ensure_respawn_panel_state() -> void:
+ 	var player = GameState.get_player()
+ 	if player.is_empty():
+diff --git a/scripts/World.gd b/scripts/World.gd
+index f66a56f..1203767 100644
+--- a/scripts/World.gd
++++ b/scripts/World.gd
+@@ -41,6 +41,23 @@ func _ready() -> void:
+ 	_build_map()
+ 	spawn_simulated_characters()
+ 	GameState.add_event("La carte de Frontier Town est chargee.")
++	GameState.new_game_started.connect(_on_new_game_started)
++	GameState.character_removed.connect(_on_character_removed)
++
++## Retire de la carte le nœud visuel d'une entite morte depuis trop longtemps (BG-003).
++func _on_character_removed(character_name: String) -> void:
++	for character_node in characters_root.get_children():
++		if "character_name" in character_node and character_node.character_name == character_name:
++			character_node.queue_free()
++			return
++
++## Retire les PNJ de l'ancienne partie et fait apparaitre ceux de la nouvelle (BG-002).
++func _on_new_game_started() -> void:
++	for character_node in characters_root.get_children():
++		character_node.queue_free()
++	for role_id in role_offsets.keys():
++		role_offsets[role_id] = 0
++	spawn_simulated_characters()
+ 
+ func _build_map() -> void:
+ 	_create_ground()

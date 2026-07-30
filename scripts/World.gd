@@ -41,6 +41,23 @@ func _ready() -> void:
 	_build_map()
 	spawn_simulated_characters()
 	GameState.add_event("La carte de Frontier Town est chargee.")
+	GameState.new_game_started.connect(_on_new_game_started)
+	GameState.character_removed.connect(_on_character_removed)
+
+## Retire de la carte le nœud visuel d'une entite morte depuis trop longtemps (BG-003).
+func _on_character_removed(character_name: String) -> void:
+	for character_node in characters_root.get_children():
+		if "character_name" in character_node and character_node.character_name == character_name:
+			character_node.queue_free()
+			return
+
+## Retire les PNJ de l'ancienne partie et fait apparaitre ceux de la nouvelle (BG-002).
+func _on_new_game_started() -> void:
+	for character_node in characters_root.get_children():
+		character_node.queue_free()
+	for role_id in role_offsets.keys():
+		role_offsets[role_id] = 0
+	spawn_simulated_characters()
 
 func _build_map() -> void:
 	_create_ground()

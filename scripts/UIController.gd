@@ -20,6 +20,12 @@ const ROLE_ORDER := ["sheriff", "merchant", "bounty_hunter", "brigand"]
 @onready var death_history = $Root/DeathPanel/DeathMargin/DeathVBox/DeathHistory
 @onready var name_input = $Root/DeathPanel/DeathMargin/DeathVBox/NameInput
 @onready var respawn_button = $Root/DeathPanel/DeathMargin/DeathVBox/RespawnButton
+@onready var start_panel = $Root/StartPanel
+@onready var continue_button = $Root/StartPanel/StartMargin/StartVBox/ContinueButton
+@onready var new_game_button = $Root/StartPanel/StartMargin/StartVBox/NewGameButton
+@onready var confirm_new_game_panel = $Root/ConfirmNewGamePanel
+@onready var cancel_new_game_button = $Root/ConfirmNewGamePanel/ConfirmMargin/ConfirmVBox/ConfirmButtonsRow/CancelButton
+@onready var confirm_new_game_button = $Root/ConfirmNewGamePanel/ConfirmMargin/ConfirmVBox/ConfirmButtonsRow/ConfirmButton
 
 var queue_rows: Dictionary = {}
 
@@ -32,12 +38,17 @@ func _ready() -> void:
 	MissionManager.mission_updated.connect(func(_name): refresh())
 	respawn_button.pressed.connect(_on_respawn_pressed)
 	name_input.text_submitted.connect(func(_text): _on_respawn_pressed())
+	continue_button.pressed.connect(_on_continue_pressed)
+	new_game_button.pressed.connect(_on_new_game_pressed)
+	cancel_new_game_button.pressed.connect(_on_cancel_new_game_pressed)
+	confirm_new_game_button.pressed.connect(_on_confirm_new_game_pressed)
 	_build_queue_ui()
 	refresh()
 	call_deferred("_ensure_respawn_panel_state")
+	call_deferred("_show_start_panel")
 
 func _unhandled_input(event: InputEvent) -> void:
-	if death_panel.visible:
+	if death_panel.visible or start_panel.visible or confirm_new_game_panel.visible:
 		return
 	if not event is InputEventKey:
 		return
@@ -183,6 +194,35 @@ func _on_player_respawned(_character_name: String) -> void:
 
 func _on_respawn_pressed() -> void:
 	GameState.create_new_player(name_input.text)
+
+## Affiche l'ecran de selection au demarrage (BG-002).
+## Seule l'option "Nouvelle Partie" est visible si aucune sauvegarde n'existe.
+func _show_start_panel() -> void:
+	continue_button.visible = GameState.loaded_from_save
+	confirm_new_game_panel.visible = false
+	start_panel.visible = true
+	GameState.simulation_paused = true
+
+func _on_continue_pressed() -> void:
+	start_panel.visible = false
+	GameState.simulation_paused = false
+
+func _on_new_game_pressed() -> void:
+	if GameState.loaded_from_save:
+		confirm_new_game_panel.visible = true
+	else:
+		# Aucune sauvegarde a ecraser : la partie deja initialisee peut demarrer.
+		start_panel.visible = false
+		GameState.simulation_paused = false
+
+func _on_cancel_new_game_pressed() -> void:
+	confirm_new_game_panel.visible = false
+
+func _on_confirm_new_game_pressed() -> void:
+	confirm_new_game_panel.visible = false
+	start_panel.visible = false
+	GameState.restart_new_game()
+	GameState.simulation_paused = false
 
 func _ensure_respawn_panel_state() -> void:
 	var player = GameState.get_player()
