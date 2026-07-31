@@ -2,6 +2,26 @@ extends Node
 
 const ACTION_COOLDOWN := 4.0
 
+## Roles disposant de plusieurs actions au choix, presentees dans un menu (TCK4).
+const ROLE_ACTIONS := {
+	"citizen": [
+		{"id": "report_crime", "label": "Signaler un crime"},
+		{"id": "gossip", "label": "Propager une rumeur"},
+		{"id": "form_militia", "label": "Former une milice"},
+		{"id": "protest", "label": "Organiser une protestation"},
+	],
+	"deputy": [
+		{"id": "assist_arrest", "label": "Assister une arrestation"},
+		{"id": "scout_perimeter", "label": "Patrouiller la peripherie"},
+		{"id": "deliver_warrant", "label": "Remettre un mandat"},
+		{"id": "guard_prisoner", "label": "Surveiller les prisonniers"},
+	],
+}
+
+## Emis quand le joueur doit choisir une action parmi plusieurs (TCK4).
+## L'UI est responsable d'afficher le menu et d'appeler perform_named_action().
+signal action_menu_requested(role_id, actions)
+
 var _cooldown_remaining := 0.0
 
 func _process(delta: float) -> void:
@@ -51,8 +71,25 @@ func perform_role_action() -> void:
 			TownActions.transport_goods(player)
 		"brigand":
 			TownActions.attack_convoy(player)
+		"citizen", "deputy":
+			# Plusieurs actions possibles : on delegue le choix a l'UI (TCK4).
+			# Le cooldown et la sauvegarde sont geres par perform_named_action()
+			# une fois l'action reellement choisie.
+			action_menu_requested.emit(role_id, ROLE_ACTIONS[role_id])
+			return
 		_:
 			consult_queues()
+	_start_cooldown()
+	SaveManager.save_game()
+
+## Execute l'action choisie par le joueur dans le menu d'actions (TCK4).
+func perform_named_action(action_id: String) -> void:
+	var player = GameState.get_player()
+	if player.is_empty():
+		return
+	if not TownActions.has_method(action_id):
+		return
+	TownActions.call(action_id, player)
 	_start_cooldown()
 	SaveManager.save_game()
 
@@ -79,7 +116,7 @@ func consult_queues() -> void:
 		GameState.add_event(
 			"%s : %s | File : %s" % [RoleManager.get_role_name(role_id), holder_text, queue_text]
 		)
-	GameState.add_event("Touches 1-4 pour rejoindre une file.")
+	GameState.add_event("Touches 1-6 pour rejoindre une file.")
 
 func get_action_hint() -> String:
 	var player = GameState.get_player()
@@ -102,8 +139,12 @@ func get_action_hint() -> String:
 			base_hint = "E : lancer un transport"
 		"brigand":
 			base_hint = "E : attaquer un convoi"
+		"deputy":
+			base_hint = "E : menu d'actions (Adjoint)"
+		"citizen":
+			base_hint = "E : menu d'actions (Habitant)"
 		_:
-			base_hint = "E : consulter les files (1-4 pour rejoindre)"
+			base_hint = "E : consulter les files (1-6 pour rejoindre)"
 
 	if is_on_cooldown():
 		return "Recuperation : %.0fs" % _cooldown_remaining

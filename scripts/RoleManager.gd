@@ -5,9 +5,11 @@ signal queue_changed
 
 var queues = {
 	"sheriff": [],
+	"deputy": [],
 	"merchant": [],
 	"bounty_hunter": [],
-	"brigand": []
+	"brigand": [],
+	"citizen": []
 }
 
 func apply_for_role(character_name, role_id):

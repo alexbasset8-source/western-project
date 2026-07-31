@@ -1032,7 +1032,7 @@ func guard_prisoner(actor: Dictionary) -> void:
 				ReputationManager.add_reputation(actor, "combat", 1)
 			else:
 				# Évasion réussie
-				PrisonManager.release_prisoner(escapee_name)
+				PrisonManager.release(escapee_name)
 				GameState.add_event("%s s'echappe malgré %s!" % [escapee_name, actor_name])
 				GameState.adjust_crime_level(3)
 				GameState.adjust_town_morale(-3)

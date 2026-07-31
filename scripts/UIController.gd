@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-const ROLE_ORDER := ["sheriff", "merchant", "bounty_hunter", "brigand"]
+const ROLE_ORDER := ["sheriff", "deputy", "merchant", "bounty_hunter", "brigand", "citizen"]
 
 @onready var title_label = $Root/HudWindow/Content/HudScroll/HudVBox/TitleLabel
 @onready var role_label = $Root/HudWindow/Content/HudScroll/HudVBox/RoleLabel
@@ -33,6 +33,10 @@ const ROLE_ORDER := ["sheriff", "merchant", "bounty_hunter", "brigand"]
 @onready var windows_menu_panel = $Root/WindowsMenuPanel
 @onready var windows_menu_list = $Root/WindowsMenuPanel/WindowsMenuMargin/WindowsMenuVBox/WindowsMenuList
 @onready var windows_menu_close_button = $Root/WindowsMenuPanel/WindowsMenuMargin/WindowsMenuVBox/WindowsMenuCloseButton
+@onready var action_menu_panel = $Root/ActionMenuPanel
+@onready var action_menu_title = $Root/ActionMenuPanel/ActionMenuMargin/ActionMenuVBox/ActionMenuTitle
+@onready var action_menu_list = $Root/ActionMenuPanel/ActionMenuMargin/ActionMenuVBox/ActionMenuList
+@onready var action_menu_close_button = $Root/ActionMenuPanel/ActionMenuMargin/ActionMenuVBox/ActionMenuCloseButton
 
 var window_manager: WindowManager
 
@@ -53,6 +57,8 @@ func _ready() -> void:
 	confirm_new_game_button.pressed.connect(_on_confirm_new_game_pressed)
 	windows_button.pressed.connect(_on_windows_button_pressed)
 	windows_menu_close_button.pressed.connect(func(): windows_menu_panel.visible = false)
+	action_menu_close_button.pressed.connect(func(): action_menu_panel.visible = false)
+	PlayerActionManager.action_menu_requested.connect(_on_action_menu_requested)
 	_setup_window_manager()
 	_build_queue_ui()
 	refresh()
@@ -100,8 +106,24 @@ func _show_windows_menu() -> void:
 		windows_menu_list.add_child(row)
 	windows_menu_panel.visible = true
 
+## Affiche le menu des actions disponibles pour un role a choix multiple (TCK4).
+func _on_action_menu_requested(role_id: String, actions: Array) -> void:
+	action_menu_title.text = "Actions : %s" % RoleManager.get_role_name(role_id)
+	for child in action_menu_list.get_children():
+		child.queue_free()
+	for action_data in actions:
+		var action_button = Button.new()
+		action_button.text = action_data.get("label", action_data.get("id", "Action"))
+		var action_id: String = action_data.get("id", "")
+		action_button.pressed.connect(func():
+			action_menu_panel.visible = false
+			PlayerActionManager.perform_named_action(action_id)
+		)
+		action_menu_list.add_child(action_button)
+	action_menu_panel.visible = true
+
 func _unhandled_input(event: InputEvent) -> void:
-	if death_panel.visible or start_panel.visible or confirm_new_game_panel.visible:
+	if death_panel.visible or start_panel.visible or confirm_new_game_panel.visible or action_menu_panel.visible:
 		return
 	if not event is InputEventKey:
 		return
@@ -123,6 +145,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			RoleManager.apply_for_role(GameState.player_name, "bounty_hunter")
 		KEY_4:
 			RoleManager.apply_for_role(GameState.player_name, "brigand")
+		KEY_5:
+			RoleManager.apply_for_role(GameState.player_name, "deputy")
+		KEY_6:
+			RoleManager.apply_for_role(GameState.player_name, "citizen")
 		KEY_K:
 			GameState.kill_first_holder("sheriff")
 		KEY_L:
@@ -237,7 +263,7 @@ func refresh() -> void:
 	if player_state == "prisoner":
 		day_label.text += " | Prison : %d tours" % PrisonManager.get_sentence_remaining(GameState.player_name)
 	action_label.text = PlayerActionManager.get_action_hint()
-	help_label.text = "Fleches : deplacer | E : action | H : %s | 1-4 : raccourcis" % HealManager.get_heal_hint()
+	help_label.text = "Fleches : deplacer | E : action | H : %s | 1-6 : raccourcis" % HealManager.get_heal_hint()
 	log.text = _build_log_text()
 	_refresh_queue_ui()
 	_ensure_respawn_panel_state()

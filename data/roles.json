@@ -4,6 +4,11 @@
     "slots": 1,
     "description": "Maintient l'ordre et repond aux crimes."
   },
+  "deputy": {
+    "name": "Adjoint",
+    "slots": 2,
+    "description": "Assiste le sherif dans le maintien de l'ordre."
+  },
   "merchant": {
     "name": "Marchand",
     "slots": 2,
@@ -18,5 +23,10 @@
     "name": "Brigand",
     "slots": 5,
     "description": "Attaque les convois et vit hors-la-loi."
+  },
+  "citizen": {
+    "name": "Habitant",
+    "slots": 999,
+    "description": "Vit dans la ville et contribue a la communaute."
   }
 }

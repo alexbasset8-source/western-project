@@ -8,9 +8,11 @@ var current_zone_data: Dictionary = {}
 
 const ROLE_TAGS := {
 	"sheriff": ["law", "town"],
+	"deputy": ["law", "town"],
 	"merchant": ["commerce", "road"],
 	"bounty_hunter": ["road", "danger"],
 	"brigand": ["danger", "road"],
+	"citizen": ["town"],
 	"": ["town"]
 }
 
@@ -66,12 +68,16 @@ func get_zone_requirement_hint(role_id: String) -> String:
 	match role_id:
 		"sheriff":
 			return "Rendez-vous au bureau du sheriff ou en ville."
+		"deputy":
+			return "Rendez-vous au bureau du sheriff ou en ville."
 		"merchant":
 			return "Allez a l'entrepot, la boutique ou une route."
 		"bounty_hunter":
 			return "Patrouillez sur une route ou dans une zone a risque."
 		"brigand":
 			return "Gagnez le canyon, le camp brigand ou une route."
+		"citizen":
+			return "Explorez la ville pour agir."
 		_:
 			return "Explorez la ville pour consulter les files."
 

@@ -320,6 +320,44 @@ theme_override_constants/separation = 6
 layout_mode = 2
 text = "Fermer"
 
+[node name="ActionMenuPanel" type="PanelContainer" parent="Root"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -130.0
+offset_right = 160.0
+offset_bottom = 130.0
+
+[node name="ActionMenuMargin" type="MarginContainer" parent="Root/ActionMenuPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="ActionMenuVBox" type="VBoxContainer" parent="Root/ActionMenuPanel/ActionMenuMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ActionMenuTitle" type="Label" parent="Root/ActionMenuPanel/ActionMenuMargin/ActionMenuVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Actions"
+horizontal_alignment = 1
+
+[node name="ActionMenuList" type="VBoxContainer" parent="Root/ActionMenuPanel/ActionMenuMargin/ActionMenuVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ActionMenuCloseButton" type="Button" parent="Root/ActionMenuPanel/ActionMenuMargin/ActionMenuVBox"]
+layout_mode = 2
+text = "Annuler"
+
 [node name="DeathPanel" type="PanelContainer" parent="Root"]
 visible = false
 layout_mode = 1
