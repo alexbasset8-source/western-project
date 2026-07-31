@@ -85,6 +85,13 @@ Interdictions absolues :
 
 Toute évolution doit modifier le moins de fichiers possible.
 
+Après avoir traité un ticket (implémentation, correction, refactorisation), **l'IA doit mettre à jour le fichier CHANGELOG.md** avant de considérer le ticket comme terminé.
+- Format obligatoire :
+  ```markdown
+  ## [X.X.X] - AAAA-MM-JJ
+  ### Ajouté/Modifié/Corrigé
+  - [ID_TICKET] : Description concise des changements
+
 Toujours privilégier :
 
 une petite modification propre
