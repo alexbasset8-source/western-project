@@ -19,8 +19,8 @@ func attempt_arrest(officer: Dictionary, target: Dictionary = {}) -> void:
 	if randf() < 0.70:
 		GameState.mark_prisoner(target_name)
 		ReputationManager.add_reputation(officer, "law", 5)
+		ReputationManager.add_reputation(officer, "crime", -10)
 		GameState.add_event("%s est mis en prison par %s." % [target_name, officer_name])
-		# Impact sur le moral et la criminalité
 		GameState.adjust_town_morale(3)
 		GameState.adjust_crime_level(-5)
 		MissionManager.record_progress(officer_name, "arrest")
@@ -32,15 +32,16 @@ func attempt_arrest(officer: Dictionary, target: Dictionary = {}) -> void:
 				return
 			ReputationManager.add_reputation(officer, "law", 3)
 			ReputationManager.add_reputation(officer, "combat", 2)
+			ReputationManager.add_reputation(officer, "crime", -5)
 			GameState.add_event("%s resiste et est abattu par %s." % [target_name, officer_name])
-			# Impact sur le moral (moins positif que l'arrestation)
 			GameState.adjust_town_morale(1)
 			GameState.adjust_crime_level(-2)
 			MissionManager.record_progress(officer_name, "arrest")
 		else:
 			GameState.add_event("%s s'enfuit de %s." % [target_name, officer_name])
-			# Impact négatif sur le moral
 			GameState.adjust_town_morale(-1)
+			ReputationManager.add_reputation(officer, "law", -2)
+			ReputationManager.add_reputation(officer, "crime", 3)
 
 
 func patrol_town(actor: Dictionary) -> void:
@@ -188,11 +189,23 @@ func enforce_curfew(actor: Dictionary) -> void:
 	Impose un couvre-feu pour réduire la criminalité nocturne.
 	Impact: Réduit fortement crime_level, mais peut affecter economy_stability.
 	Risque: Impopularité si le moral est déjà bas.
+	Requiert: réputation law >= 25
 	"""
 	if actor.is_empty() or actor.get("state", "alive") == "dead":
 		return
 	var actor_name = actor.get("name", "Le sheriff")
 	var is_player = GameState.is_player_character(actor_name)
+	
+	# Check reputation requirement
+	if not ReputationManager.can_perform_action(actor, "enforce_curfew"):
+		var missing = ReputationManager.get_missing_requirements(actor, "enforce_curfew")
+		if missing.has("law"):
+			GameState.add_event("%s n'a pas assez de reputation loi (nécessite %d, a %d) pour imposer un couvre-feu." % [
+				actor_name,
+				missing["law"].get("required", 25),
+				missing["law"].get("current", 0)
+			])
+		return
 	
 	GameState.add_event("%s impose un couvre-feu a Frontier Town." % actor_name, "player" if is_player else "law")
 	

@@ -126,6 +126,10 @@ func add_event(message: String, event_type: String = "") -> void:
 func advance_world_day() -> void:
 	world_day += 1
 	_remove_expired_corpses()
+	# Decay reputation by 1 point per hour (24 points per day)
+	for character in characters:
+		if character.get("state", "alive") != "dead":
+			ReputationManager.decay_reputation(character)
 	state_changed.emit()
 
 ## Supprime de la carte et de la memoire les entites mortes depuis

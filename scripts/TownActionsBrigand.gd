@@ -17,6 +17,8 @@ func attack_convoy(brigand: Dictionary, merchant: Dictionary = {}) -> void:
 	var _is_player_brigand = GameState.is_player_character(brigand_name)
 	GameState.add_event("%s attaque le convoi de %s dans le canyon." % [brigand_name, merchant_name], "player" if _is_player_brigand else "danger")
 	GameState.mark_wanted(brigand_name, 25)
+	ReputationManager.add_reputation(brigand, "law", -15)
+	ReputationManager.add_reputation(brigand, "crime", 10)
 	var raid_success = false
 	if randf() < 0.25:
 		InjuryManager.harm_character(merchant_name, "convoi attaque", 2)
@@ -160,11 +162,23 @@ func extort_protection_money(actor: Dictionary) -> void:
 	Extorque de l'argent de protection aux commerçants.
 	Impact: Augmente crime_level, réduit town_morale et economy_stability.
 	Risque: Les commerçants peuvent résister ou alerter les autorités.
+	Requiert: réputation crime >= 30
 	"""
 	if actor.is_empty() or actor.get("state", "alive") == "dead":
 		return
 	var actor_name = actor.get("name", "Un brigand")
 	var is_player = GameState.is_player_character(actor_name)
+	
+	# Check reputation requirement
+	if not ReputationManager.can_perform_action(actor, "extort_protection_money"):
+		var missing = ReputationManager.get_missing_requirements(actor, "extort_protection_money")
+		if missing.has("crime"):
+			GameState.add_event("%s n'a pas assez de reputation crime (nécessite %d, a %d) pour extorquer." % [
+				actor_name,
+				missing["crime"].get("required", 30),
+				missing["crime"].get("current", 0)
+			])
+		return
 	
 	GameState.add_event("%s extorque de l'argent de protection aux commerçants." % actor_name, "player" if is_player else "danger")
 	

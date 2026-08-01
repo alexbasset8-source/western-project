@@ -13,6 +13,7 @@ const ROLE_ORDER := ["sheriff", "deputy", "merchant", "bounty_hunter", "brigand"
 @onready var day_label = $Root/HudWindow/Content/HudScroll/HudVBox/DayLabel
 @onready var action_label = $Root/HudWindow/Content/HudScroll/HudVBox/ActionLabel
 @onready var help_label = $Root/HudWindow/Content/HudScroll/HudVBox/HelpLabel
+@onready var reputation_label = $Root/HudWindow/Content/HudScroll/HudVBox/ReputationLabel
 @onready var roles_vbox = $Root/RolesWindow/Content/RolesScroll/RolesVBox
 @onready var log = $Root/LogWindow/Content/LogScroll/Log
 @onready var death_panel = $Root/DeathPanel
@@ -112,6 +113,8 @@ func _on_action_menu_requested(role_id: String, actions: Array) -> void:
 	for child in action_menu_list.get_children():
 		child.queue_free()
 
+	var player = GameState.get_player()
+	
 	# Une seule raison de blocage a la fois suffit : zone incorrecte prime sur le cooldown.
 	var blocked_reason := ""
 	if not ZoneManager.can_perform_role_action(role_id):
@@ -127,10 +130,23 @@ func _on_action_menu_requested(role_id: String, actions: Array) -> void:
 		action_menu_list.add_child(reason_label)
 
 	for action_data in actions:
-		var action_button = Button.new()
-		action_button.text = action_data.get("label", action_data.get("id", "Action"))
-		action_button.disabled = blocked_reason != ""
 		var action_id: String = action_data.get("id", "")
+		var action_button = Button.new()
+		var action_text = action_data.get("label", action_id)
+		
+		# Check reputation requirements
+		var reputation_blocked := false
+		if not player.is_empty():
+			var missing = ReputationManager.get_missing_requirements(player, action_id)
+			if not missing.is_empty():
+				reputation_blocked = true
+				var req_texts = []
+				for rep_id in missing.keys():
+					req_texts.append("%s:%d/%d" % [rep_id, missing[rep_id].get("current", 0), missing[rep_id].get("required", 0)])
+				action_text += " (nécessite: %s)" % ", ".join(req_texts)
+		
+		action_button.text = action_text
+		action_button.disabled = blocked_reason != "" or reputation_blocked
 		action_button.pressed.connect(func():
 			action_menu_panel.visible = false
 			PlayerActionManager.perform_named_action(action_id)
@@ -280,6 +296,13 @@ func refresh() -> void:
 		day_label.text += " | Prison : %d tours" % PrisonManager.get_sentence_remaining(GameState.player_name)
 	action_label.text = PlayerActionManager.get_action_hint()
 	help_label.text = "Fleches : deplacer | E : action | H : %s | 1-6 : raccourcis" % HealManager.get_heal_hint()
+	
+	# Display reputation
+	if not player.is_empty():
+		reputation_label.text = ReputationManager.get_reputation_display(player)
+		reputation_label.tooltip_text = ReputationManager.get_reputation_summary(player)
+	else:
+		reputation_label.text = "Reputation: "
 	log.text = _build_log_text()
 	_refresh_queue_ui()
 	_ensure_respawn_panel_state()

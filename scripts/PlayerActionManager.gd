@@ -104,7 +104,7 @@ func perform_role_action() -> void:
 	SaveManager.save_game()
 
 ## Execute l'action choisie par le joueur dans le menu d'actions (TCK4/TCK5).
-## Reverifie systematiquement cooldown/zone : l'UI grise deja les actions
+## Reverifie systematiquement cooldown/zone/reputation : l'UI grise deja les actions
 ## indisponibles, mais cette fonction reste la garde-fou definitif.
 func perform_named_action(action_id: String) -> void:
 	var player = GameState.get_player()
@@ -119,6 +119,15 @@ func perform_named_action(action_id: String) -> void:
 	if not ZoneManager.can_perform_role_action(role_id):
 		GameState.add_event("Vous n'etes pas au bon endroit pour agir.")
 		GameState.add_event(ZoneManager.get_zone_requirement_hint(role_id))
+		return
+	# Check reputation requirements
+	if not ReputationManager.can_perform_action(player, action_id):
+		var missing = ReputationManager.get_missing_requirements(player, action_id)
+		if not missing.is_empty():
+			var missing_texts = []
+			for rep_id in missing.keys():
+				missing_texts.append("%s: %d/%d" % [rep_id, missing[rep_id].get("current", 0), missing[rep_id].get("required", 0)])
+			GameState.add_event("Reputation insuffisante: %s" % ", ".join(missing_texts))
 		return
 	var module = TownActions.get_module(role_id)
 	if module == null or not module.has_method(action_id):
