@@ -7,6 +7,49 @@
 
 ---
 
+## [0.6.1] - 2026-07-31
+
+### 📦 Ajouté
+- **[BG-001-P2]** 4 actions manquantes pour le **Chasseur de primes**, qui n'avait que `track_bounty` alors que la spec en prévoyait 5 comme les autres rôles : `investigate_bounty` (enquêter sur une prime), `set_trap` (poser un piège, capture automatique 40%), `follow_trail` (suivre une piste), `negotiate_surrender` (négocier une reddition, 80% de la prime). Adaptées de `docs/BG-001_PHASE2_TICKET.md` à l'architecture réelle du projet (pas de cooldown par action/personnage, réutilisation du cooldown global existant).
+- **[BG-001-P2]** Test unitaire `_test_bounty_hunter_actions()` dans `tests/test_town_actions_p2.gd`, qui manquait alors que les 5 autres rôles (Sheriff, Marchand, Brigand, Adjoint, Habitant) étaient déjà couverts.
+
+### 🔧 Modifié
+- `scripts/PlayerActionManager.gd` : le Chasseur de primes passe de 1 à 5 actions dans son menu (`ROLE_ACTIONS`).
+
+### 📝 Statut BG-001-P2
+Avec ce correctif, les 6 rôles (Sheriff, Marchand, Chasseur de primes, Brigand, Adjoint, Habitant) ont chacun 4 ou 5 actions accessibles en jeu et testées. Écarts connus et assumés par rapport à la spec initiale : cooldown global (par joueur) plutôt que par action/personnage en tours, pas de raccourcis clavier 1-5 dédiés (menu cliquable à la place), les PNJ simulés n'utilisent que les actions historiques (Phase 1).
+
+---
+
+## [0.6.0] - 2026-07-31
+
+### 📦 Ajouté
+- **[BG-002]** Écran de sélection de sauvegarde au démarrage : boutons "Continuer" / "Nouvelle Partie", confirmation obligatoire avant d'écraser une sauvegarde existante ("Cela écrasera votre sauvegarde actuelle. Êtes-vous sûr ?").
+- **[BG-003]** Suppression automatique des cadavres (joueurs et PNJ) de la carte et de la mémoire 2 jours après leur mort.
+- **[TCK3]** Système de fenêtres pour le HUD (Statut), les Rôles et le Journal : déplacement, redimensionnement, minimisation, fermeture, anti-chevauchement, cycle `TAB`, menu de réouverture (`CTRL+TAB` ou bouton "Fenêtres"), disposition persistée entre sessions.
+- **[TCK4]** Nouveaux rôles jouables **Adjoint** (Deputy) et **Habitant** (Citizen), sélectionnables comme les autres rôles, avec 4 actions chacun accessibles via un menu d'actions.
+- **[TCK5]** Menu d'actions généralisé à Sheriff, Marchand, Chasseur de primes et Brigand : les actions de BG-001-P2 déjà écrites dans `TownActions.gd` mais jamais reliées à l'UI (15 actions au total) sont désormais toutes accessibles et filtrées par rôle.
+
+### 🔧 Modifié
+- `scripts/GameState.gd` : `restart_new_game()`, `loaded_from_save`, `time_of_death` et nettoyage des cadavres expirés, signal `character_removed`.
+- `scripts/RoleManager.gd` : files d'attente `deputy` et `citizen`, fonction `reset_queues()`.
+- `scripts/World.gd` : respawn des PNJ sur nouvelle partie, suppression du nœud visuel des cadavres expirés.
+- `scripts/Player.gd` : joueur gelé pendant l'écran de sélection de sauvegarde et le menu de fenêtres.
+- `scripts/ZoneManager.gd` : zones autorisées et indices pour `citizen` et `deputy`.
+- `scripts/PlayerActionManager.gd` : réécriture du dispatch des actions — table `ROLE_ACTIONS` centralisée par rôle, actions indisponibles (cooldown, mauvaise zone) affichées grisées avec leur raison dans le menu au lieu d'un simple message dans le journal.
+- `scripts/UIController.gd` : panneaux de sélection de sauvegarde, de confirmation, de gestion de fenêtres et de menu d'actions ; chemins des nœuds HUD/Rôles/Journal mis à jour pour la nouvelle structure de fenêtres.
+- `scenes/UI.tscn` : panneaux HUD/Rôles/Journal transformés en fenêtres déplaçables ; ajout des panneaux de sélection de sauvegarde, de confirmation, de gestion de fenêtres et de menu d'actions.
+- `data/roles.json` : ajout des rôles `deputy` et `citizen`.
+
+### 🐛 Corrigé
+- **[TCK4]** `guard_prisoner()` appelait une méthode inexistante `PrisonManager.release_prisoner()` au lieu de `release()` : aurait fait planter le jeu lors d'une évasion de prisonnier réussie.
+- **[TCK5]** `organize_posse()` affichait littéralement `%s` au lieu du nom du brigand capturé (substitution de format manquante).
+
+### 📄 Nouveaux fichiers
+- `scripts/WindowFrame.gd`, `scripts/WindowManager.gd` (TCK3).
+
+---
+
 ## **[Non publié]** *(En développement - Phase 1 BG-001)*
 
 ### **📦 Ajouté**
@@ -173,4 +216,4 @@
  | 0.8.0 | Septembre 2026 | Vertical Slice (Phase 6 Roadmap) | 📅 Planifié |
 
 ---
-*Dernière mise à jour : 26 juillet 2026*
+*Dernière mise à jour : 31 juillet 2026*

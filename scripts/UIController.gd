@@ -106,14 +106,30 @@ func _show_windows_menu() -> void:
 		windows_menu_list.add_child(row)
 	windows_menu_panel.visible = true
 
-## Affiche le menu des actions disponibles pour un role a choix multiple (TCK4).
+## Affiche le menu des actions du role actuel, action(s) indisponibles grisees (TCK4/TCK5).
 func _on_action_menu_requested(role_id: String, actions: Array) -> void:
 	action_menu_title.text = "Actions : %s" % RoleManager.get_role_name(role_id)
 	for child in action_menu_list.get_children():
 		child.queue_free()
+
+	# Une seule raison de blocage a la fois suffit : zone incorrecte prime sur le cooldown.
+	var blocked_reason := ""
+	if not ZoneManager.can_perform_role_action(role_id):
+		blocked_reason = ZoneManager.get_zone_requirement_hint(role_id)
+	elif PlayerActionManager.is_on_cooldown():
+		blocked_reason = "Recuperation : %.0fs" % PlayerActionManager.get_cooldown_remaining()
+
+	if blocked_reason != "":
+		var reason_label = Label.new()
+		reason_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		reason_label.add_theme_color_override("font_color", Color(0.9, 0.6, 0.2, 1))
+		reason_label.text = blocked_reason
+		action_menu_list.add_child(reason_label)
+
 	for action_data in actions:
 		var action_button = Button.new()
 		action_button.text = action_data.get("label", action_data.get("id", "Action"))
+		action_button.disabled = blocked_reason != ""
 		var action_id: String = action_data.get("id", "")
 		action_button.pressed.connect(func():
 			action_menu_panel.visible = false

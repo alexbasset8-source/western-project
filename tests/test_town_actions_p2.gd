@@ -45,6 +45,9 @@ async func _ready() -> void:
 	print("\n=== Test 8: Actions Townfolk ===")
 	_test_townfolk_actions()
 	
+	print("\n=== Test 8b: Actions Bounty Hunter ===")
+	_test_bounty_hunter_actions()
+	
 	# ============================================
 	# TESTS D'INTÉGRATION
 	# ============================================
@@ -388,6 +391,65 @@ func _test_townfolk_actions() -> void:
 	GameState.crime_level = old_crime
 	
 	print("  ✓ Toutes les actions Townfolk fonctionnent correctement")
+
+
+func _test_bounty_hunter_actions() -> void:
+	"""Teste les 5 actions du Bounty Hunter (track_bounty + 4 completees BG-001-P2)"""
+	
+	var old_morale = GameState.town_morale
+	var old_crime = GameState.crime_level
+	
+	var test_hunter = {
+		"name": "HunterTest",
+		"role_id": "bounty_hunter",
+		"state": "alive",
+		"money": 100,
+		"bounty": 0,
+		"wounds": 0
+	}
+	
+	# Cible recherchee avec une prime pour que les actions aient un effet mesurable
+	var test_target = {
+		"name": "WantedForHunterTest",
+		"role_id": "brigand",
+		"state": "wanted",
+		"money": 0,
+		"bounty": 30,
+		"wounds": 0
+	}
+	
+	var temp_characters = GameState.characters.duplicate()
+	GameState.characters.append(test_target)
+	
+	# Test 1: track_bounty (action historique BG-001-P1)
+	print("  Testing track_bounty...")
+	TownActions.track_bounty(test_hunter, test_target)
+	
+	# Test 2: investigate_bounty
+	print("  Testing investigate_bounty...")
+	TownActions.investigate_bounty(test_hunter, test_target)
+	
+	# Test 3: set_trap
+	print("  Testing set_trap...")
+	TownActions.set_trap(test_hunter)
+	
+	# Test 4: follow_trail
+	print("  Testing follow_trail...")
+	TownActions.follow_trail(test_hunter)
+	
+	# Test 5: negotiate_surrender
+	print("  Testing negotiate_surrender...")
+	TownActions.negotiate_surrender(test_hunter, test_target)
+	
+	assert(GameState.crime_level >= 0 && GameState.crime_level <= 100, "crime_level doit rester dans [0, 100]")
+	assert(GameState.town_morale >= 0 && GameState.town_morale <= 100, "town_morale doit rester dans [0, 100]")
+	
+	# Restaurer
+	GameState.characters = temp_characters
+	GameState.town_morale = old_morale
+	GameState.crime_level = old_crime
+	
+	print("  ✓ Toutes les actions Bounty Hunter fonctionnent correctement")
 
 
 func _test_integration() -> void:

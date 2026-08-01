@@ -320,7 +320,7 @@ func organize_posse(actor: Dictionary) -> void:
 			if randf() < 0.70:
 				# La posse gagne
 				GameState.mark_prisoner(brigand_name)
-				GameState.add_event("La posse capture %s!")
+				GameState.add_event("La posse capture %s!" % brigand_name)
 				GameState.adjust_crime_level(-4)
 				GameState.adjust_town_morale(4)
 				ReputationManager.add_reputation(actor, "law", 5)
@@ -1279,3 +1279,141 @@ func protest(actor: Dictionary) -> void:
 				GameState.adjust_town_morale(-1)
 	
 	MissionManager.record_progress(actor_name, "protest")
+
+
+# --- BOUNTY HUNTER ACTIONS (complete BG-001-P2) ---
+# track_bounty() ci-dessus est l'action historique (BG-001-P1).
+# Les 4 actions suivantes comblent le rôle a 5 actions, au même titre que
+# Sheriff/Marchand/Brigand. Adaptees de la spec BG-001_PHASE2_TICKET.md :
+# le cooldown par action/personnage n'existe pas dans ce projet (seul un
+# cooldown global cote joueur existe, gere par PlayerActionManager.gd), ces
+# fonctions ne le referencent donc pas, comme les autres actions du fichier.
+
+func investigate_bounty(hunter: Dictionary, target: Dictionary = {}) -> void:
+	"""
+	Enquete sur une prime active pour reunir des informations.
+	Impact: Legere amelioration du moral, reputation combat/loi.
+	Risque: Aucun, mais ne garantit rien de concret par elle-meme.
+	"""
+	if hunter.is_empty() or hunter.get("state", "alive") == "dead":
+		return
+	if target.is_empty():
+		target = _find_bounty_target()
+	if target.is_empty():
+		GameState.add_event("Aucune prime active a enqueter.")
+		return
+
+	var hunter_name = hunter.get("name", "Un chasseur")
+	var target_name = target.get("name", "un criminel")
+	var is_player = GameState.is_player_character(hunter_name)
+
+	GameState.add_event("%s enquete sur %s." % [hunter_name, target_name], "player" if is_player else "")
+	GameState.adjust_town_morale(1)
+
+	ReputationManager.add_reputation(hunter, "combat", 2)
+	ReputationManager.add_reputation(hunter, "law", 1)
+	MissionManager.record_progress(hunter_name, "investigation")
+
+
+func set_trap(hunter: Dictionary) -> void:
+	"""
+	Pose un piege pour capturer automatiquement un criminel recherche.
+	Impact: Reduit crime_level, ameliore town_morale en cas de succes.
+	Risque: Peut ne rien attraper.
+	"""
+	if hunter.is_empty() or hunter.get("state", "alive") == "dead":
+		return
+	var hunter_name = hunter.get("name", "Un chasseur")
+	var is_player = GameState.is_player_character(hunter_name)
+
+	GameState.add_event("%s pose un piege pour les criminels." % hunter_name, "player" if is_player else "")
+
+	if randf() < 0.40:
+		var wanted = _find_wanted_brigand()
+		if not wanted.is_empty():
+			var wanted_name = wanted.get("name", "un criminel")
+			GameState.mark_prisoner(wanted_name)
+			var reward = int(wanted.get("bounty", 0))
+			if reward > 0:
+				GameState.adjust_money(hunter_name, reward)
+				wanted["bounty"] = 0
+			GameState.add_event("%s a capture %s avec son piege et encaisse $%d !" % [hunter_name, wanted_name, reward])
+			GameState.adjust_town_morale(3)
+			GameState.adjust_crime_level(-3)
+			ReputationManager.add_reputation(hunter, "combat", 4)
+			ReputationManager.add_reputation(hunter, "law", 3)
+			MissionManager.record_progress(hunter_name, "trap")
+		else:
+			GameState.add_event("Le piege de %s n'a rien attrape." % hunter_name)
+	else:
+		GameState.add_event("Le piege de %s n'a rien attrape." % hunter_name)
+
+
+func follow_trail(hunter: Dictionary) -> void:
+	"""
+	Suit une piste pour localiser un criminel recherche.
+	Impact: Reputation combat/loi en cas de succes.
+	Risque: La piste peut se perdre.
+	"""
+	if hunter.is_empty() or hunter.get("state", "alive") == "dead":
+		return
+	var hunter_name = hunter.get("name", "Un chasseur")
+	var is_player = GameState.is_player_character(hunter_name)
+
+	GameState.add_event("%s suit une piste de criminel." % hunter_name, "player" if is_player else "")
+
+	if randf() < 0.60:
+		var target = _find_bounty_target()
+		if not target.is_empty():
+			GameState.add_event("%s a trouve la cachette de %s !" % [hunter_name, target.get("name", "un criminel")])
+			ReputationManager.add_reputation(hunter, "combat", 3)
+			ReputationManager.add_reputation(hunter, "law", 2)
+		else:
+			GameState.add_event("%s a trouve des indices, mais pas de criminel." % hunter_name)
+			ReputationManager.add_reputation(hunter, "combat", 2)
+	else:
+		GameState.add_event("%s a perdu la piste." % hunter_name)
+
+	MissionManager.record_progress(hunter_name, "trail")
+
+
+func negotiate_surrender(hunter: Dictionary, target: Dictionary = {}) -> void:
+	"""
+	Tente de negocier la reddition d'un criminel plutot que l'affronter.
+	Impact: Reduit crime_level, ameliore town_morale en cas de succes.
+	Risque: Refus pouvant mener a une fuite ou une attaque surprise.
+	"""
+	if hunter.is_empty() or hunter.get("state", "alive") == "dead":
+		return
+	if target.is_empty():
+		target = _find_bounty_target()
+	if target.is_empty():
+		GameState.add_event("Aucune cible a negocier.")
+		return
+
+	var hunter_name = hunter.get("name", "Un chasseur")
+	var target_name = target.get("name", "un criminel")
+	var is_player = GameState.is_player_character(hunter_name)
+
+	GameState.add_event("%s tente de negocier la reddition de %s." % [hunter_name, target_name], "player" if is_player else "")
+
+	if randf() < 0.50:
+		GameState.mark_prisoner(target_name)
+		var reward = int(int(target.get("bounty", 0)) * 0.8)
+		if reward > 0:
+			GameState.adjust_money(hunter_name, reward)
+			target["bounty"] = 0
+		GameState.add_event("%s a negocie la reddition de %s et encaisse $%d !" % [hunter_name, target_name, reward])
+		GameState.adjust_town_morale(2)
+		GameState.adjust_crime_level(-2)
+		ReputationManager.add_reputation(hunter, "combat", 2)
+		ReputationManager.add_reputation(hunter, "law", 4)
+		ReputationManager.add_reputation(hunter, "reliability", 2)
+		MissionManager.record_progress(hunter_name, "negotiation")
+	else:
+		GameState.add_event("%s a refuse de se rendre." % target_name)
+		if randf() < 0.50:
+			GameState.add_event("%s s'enfuit !" % target_name)
+		else:
+			InjuryManager.harm_character(hunter_name, "negociation echouee", 1)
+			GameState.add_event("%s attaque %s par surprise !" % [target_name, hunter_name])
