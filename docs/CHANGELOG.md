@@ -7,6 +7,13 @@
 
 ---
 
+## [0.6.2] - 2026-07-31
+
+### 🐛 Corrigé
+- Erreur de parsing bloquant le chargement de `tests/test_town_actions_p2.gd` et `tests/test_game_state_globals.gd` : `async func _ready()` n'est pas une syntaxe valide en GDScript 4 (Godot 4 n'a pas de mot-clé `async` ; il suffit d'utiliser `await` directement dans une fonction normale). Les deux fichiers empêchaient le chargement du projet.
+
+---
+
 ## [0.6.1] - 2026-07-31
 
 ### 📦 Ajouté

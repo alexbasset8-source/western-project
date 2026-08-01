@@ -1,7 +1,7 @@
 extends Node
 # Test unitaire pour les nouvelles actions de TownActions (BG-001-P2)
 
-async func _ready() -> void:
+func _ready() -> void:
 	# Attendre que GameState soit prêt
 	await get_tree().create_timer(0.1).timeout
 	
