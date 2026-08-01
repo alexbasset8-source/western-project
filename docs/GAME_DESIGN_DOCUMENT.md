@@ -2,7 +2,7 @@
 
 # Frontier Town - Game Design Document
 
-Version : 0.2
+Version : 0.3
 
 ---
 
@@ -43,6 +43,7 @@ Exemple :
 - Chasseurs de primes
 - Brigands
 - Adjoints (Deputy)
+- Habitants (Townfolk)
 
 Un rôle occupé ne peut pas être obtenu immédiatement.
 
@@ -207,6 +208,13 @@ Responsabilités :
 Objectif :
 
 Gagner de l'argent.
+
+**Actions disponibles (BG-001-P2) :**
+- `track_bounty` : Traquer un criminel avec une prime
+- `investigate_bounty` : Enquêter sur une prime pour réunir des informations
+- `set_trap` : Poser un piège pour capturer automatiquement un criminel recherché
+- `follow_trail` : Suivre une piste pour localiser un criminel recherché
+- `negotiate_surrender` : Négocier la reddition d'un criminel plutôt que l'affronter
 
 ---
 
@@ -410,6 +418,15 @@ Chaque rôle dispose de 5+ actions variées, équilibrées et engageantes pour d
 | smuggle_contraband | ✓ economy, ✗ goods_price | Confiscation | Profit $40-80 |
 | setup_trade_stand | ✓ economy, ✓ town_morale | Vol | Profit $25-50 |
 
+### Chasseur de primes (5 actions)
+| Action | Impact Principal | Risque | Récompense |
+|--------|------------------|--------|------------|
+| track_bounty | ✓ crime_level, ✓ town_morale | Cible s'échappe | Prime + réputation |
+| investigate_bounty | ✓ town_morale (léger) | Aucun | Réputation combat/loi |
+| set_trap | ✓ crime_level, ✓ town_morale | Piège vide (60%) | Prime + réputation |
+| follow_trail | Aucun impact global direct | Piste perdue (40%) | Réputation combat/loi |
+| negotiate_surrender | ✓ crime_level, ✓ town_morale | Refus, fuite ou attaque | 80% de la prime + réputation |
+
 ### Deputy (4 actions)
 | Action | Impact Principal | Risque | Récompense |
 |--------|------------------|--------|------------|
@@ -481,6 +498,12 @@ Ces exclusions permettent de préserver l'identité du projet.
 ---
 
 # Historique des versions
+
+## Version 0.3 (BG-001-P2 complet + TCK3/TCK4/TCK5)
+- Complément du Chasseur de primes : 4 actions ajoutées (`investigate_bounty`, `set_trap`, `follow_trail`, `negotiate_surrender`), portant le rôle à 5 actions comme les autres.
+- Toutes les actions de tous les rôles sont désormais accessibles en jeu via un menu d'actions filtré par rôle, avec affichage grisé (cooldown/zone) des actions indisponibles (TCK5).
+- Deux nouveaux rôles jouables : Adjoint (Deputy) et Habitant (Townfolk), avec leurs 4 actions chacun (TCK4).
+- Écarts assumés par rapport à la spec initiale : cooldown global par joueur (pas par action/tours), menu cliquable (pas de raccourcis 1-5). Voir `DECISIONS.md` DEC-011.
 
 ## Version 0.2 (BG-001-P2)
 - Ajout de 4 nouvelles actions par rôle (Sheriff, Brigand, Merchant, Deputy, Townfolk)

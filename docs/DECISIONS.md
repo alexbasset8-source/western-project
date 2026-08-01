@@ -257,7 +257,33 @@ Toute proposition devra justifier sa contribution au gameplay.
 
 ---
 
-# Décisions en attente
+## DEC-011
+
+**Date :**
+2026-07-31
+
+**Statut :**
+Validée
+
+**Décision :**
+
+Les actions de rôle (BG-001-P2) utilisent un cooldown global de 4 secondes réelles par joueur, partagé entre toutes ses actions, et un menu cliquable pour choisir une action — plutôt qu'un cooldown par action/personnage en tours (3-10) et des raccourcis clavier 1-5, comme le prévoyait `BG-001_PHASE2_TICKET.md`.
+
+**Contexte :**
+
+Le système de cooldown par action et par personnage (stocké en tours dans `GameState`) n'a jamais été implémenté, alors que les fonctions d'action elles-mêmes existaient déjà (`TownActions.gd`). Combler cet écart en plus de rendre les actions accessibles (TCK4/TCK5) aurait mélangé deux fonctionnalités dans un même ticket.
+
+**Conséquences :**
+
+- Le cooldown ne varie pas selon la puissance de l'action (contrairement à l'intention initiale de 3-10 tours).
+- Un joueur ne peut pas déclencher une action au clavier seul ; il doit ouvrir le menu puis cliquer.
+- Documenté comme dette technique dans `BACKLOG.md`, à traiter dans un ticket dédié.
+
+**Alternative(s) étudiée(s) :**
+
+Implémenter immédiatement le système complet `action_cooldowns` par personnage/action décrit dans `BG-001_PHASE2_TICKET.md`. Écartée pour garder chaque ticket focalisé sur une seule fonctionnalité (accessibilité des actions), conformément à `AI_RULES.md`.
+
+---
 
 Aucune.
 

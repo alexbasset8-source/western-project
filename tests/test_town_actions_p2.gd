@@ -113,23 +113,23 @@ func _test_actions_at_extreme(morale: int, crime: int, economy: int, price: floa
 	}
 	
 	# Tester patrol_town avec moral à 0
-	TownActions.patrol_town(test_sheriff)
+	TownActions.sheriff.patrol_town(test_sheriff)
 	assert(GameState.town_morale >= 0, "Moral ne devrait pas descendre sous 0")
 	assert(GameState.town_morale <= 100, "Moral ne devrait pas dépasser 100")
 	
 	# Tester ambush_merchants avec crime à 100
-	TownActions.ambush_merchants(test_brigand)
+	TownActions.brigand.ambush_merchants(test_brigand)
 	assert(GameState.crime_level >= 0, "Crime ne devrait pas descendre sous 0")
 	assert(GameState.crime_level <= 100, "Crime ne devrait pas dépasser 100")
 	
 	# Tester negotiate_prices avec price à 2.0
-	TownActions.negotiate_prices(test_merchant)
+	TownActions.merchant.negotiate_prices(test_merchant)
 	assert(GameState.goods_price >= 0.5, "Prix ne devrait pas descendre sous 0.5")
 	assert(GameState.goods_price <= 2.0, "Prix ne devrait pas dépasser 2.0")
 	
 	# Tester smuggle_contraband avec price à 0.5
 	GameState.goods_price = 0.5
-	TownActions.smuggle_contraband(test_merchant)
+	TownActions.merchant.smuggle_contraband(test_merchant)
 	assert(GameState.goods_price >= 0.5, "Prix ne devrait pas descendre sous 0.5")
 	
 	# Restaurer l'état
@@ -160,25 +160,25 @@ func _test_sheriff_actions() -> void:
 	
 	# Test 1: patrol_town
 	print("  Testing patrol_town...")
-	TownActions.patrol_town(test_sheriff)
+	TownActions.sheriff.patrol_town(test_sheriff)
 	assert(GameState.crime_level <= old_crime, "patrol_town devrait réduire ou maintenir crime_level")
 	assert(GameState.town_morale >= old_morale, "patrol_town devrait améliorer ou maintenir town_morale")
 	
 	# Test 2: interrogate_witness
 	print("  Testing interrogate_witness...")
-	TownActions.interrogate_witness(test_sheriff)
+	TownActions.sheriff.interrogate_witness(test_sheriff)
 	# Vérifier que crime_level a été affecté
 	var current_crime = GameState.crime_level
 	assert(current_crime >= 0 && current_crime <= 100, "crime_level devrait rester dans [0, 100]")
 	
 	# Test 3: organize_posse
 	print("  Testing organize_posse...")
-	TownActions.organize_posse(test_sheriff)
+	TownActions.sheriff.organize_posse(test_sheriff)
 	assert(GameState.crime_level <= old_crime, "organize_posse devrait réduire crime_level")
 	
 	# Test 4: enforce_curfew
 	print("  Testing enforce_curfew...")
-	TownActions.enforce_curfew(test_sheriff)
+	TownActions.sheriff.enforce_curfew(test_sheriff)
 	assert(GameState.crime_level <= old_crime, "enforce_curfew devrait réduire crime_level")
 	
 	# Restaurer
@@ -223,23 +223,23 @@ func _test_brigand_actions() -> void:
 	
 	# Test 1: ambush_merchants
 	print("  Testing ambush_merchants...")
-	TownActions.ambush_merchants(test_brigand)
+	TownActions.brigand.ambush_merchants(test_brigand)
 	assert(GameState.crime_level >= old_crime, "ambush_merchants devrait augmenter crime_level")
 	assert(GameState.town_morale <= old_morale, "ambush_merchants devrait réduire town_morale")
 	
 	# Test 2: sabotage_town_infrastructure
 	print("  Testing sabotage_town_infrastructure...")
-	TownActions.sabotage_town_infrastructure(test_brigand)
+	TownActions.brigand.sabotage_town_infrastructure(test_brigand)
 	assert(GameState.economy_stability <= old_economy, "sabotage devrait réduire economy_stability")
 	
 	# Test 3: extort_protection_money
 	print("  Testing extort_protection_money...")
-	TownActions.extort_protection_money(test_brigand)
+	TownActions.brigand.extort_protection_money(test_brigand)
 	assert(GameState.crime_level >= old_crime, "extort_protection_money devrait augmenter crime_level")
 	
 	# Test 4: hide_loot
 	print("  Testing hide_loot...")
-	TownActions.hide_loot(test_brigand)
+	TownActions.brigand.hide_loot(test_brigand)
 	# hide_loot devrait réduire crime_level (moins de butin visible)
 	
 	# Restaurer
@@ -272,23 +272,23 @@ func _test_merchant_actions() -> void:
 	# Test 1: negotiate_prices
 	print("  Testing negotiate_prices...")
 	var price_before = GameState.goods_price
-	TownActions.negotiate_prices(test_merchant)
+	TownActions.merchant.negotiate_prices(test_merchant)
 	# La négociation peut réussir ou échouer, mais le prix doit rester dans les limites
 	assert(GameState.goods_price >= 0.5 && GameState.goods_price <= 2.0, "Prix doit rester dans [0.5, 2.0]")
 	
 	# Test 2: bribe_officials
 	print("  Testing bribe_officials...")
-	TownActions.bribe_officials(test_merchant)
+	TownActions.merchant.bribe_officials(test_merchant)
 	# Vérifier que l'argent a été affecté
 	
 	# Test 3: smuggle_contraband
 	print("  Testing smuggle_contraband...")
-	TownActions.smuggle_contraband(test_merchant)
+	TownActions.merchant.smuggle_contraband(test_merchant)
 	assert(GameState.economy_stability >= 0 && GameState.economy_stability <= 100, "economy_stability doit rester dans [0, 100]")
 	
 	# Test 4: setup_trade_stand
 	print("  Testing setup_trade_stand...")
-	TownActions.setup_trade_stand(test_merchant)
+	TownActions.merchant.setup_trade_stand(test_merchant)
 	assert(GameState.economy_stability >= old_economy, "setup_trade_stand devrait améliorer economy_stability")
 	
 	# Restaurer
@@ -331,21 +331,21 @@ func _test_deputy_actions() -> void:
 	
 	# Test 1: assist_arrest
 	print("  Testing assist_arrest...")
-	TownActions.assist_arrest(test_deputy, test_brigand)
+	TownActions.deputy.assist_arrest(test_deputy, test_brigand)
 	
 	# Test 2: scout_perimeter
 	print("  Testing scout_perimeter...")
-	TownActions.scout_perimeter(test_deputy)
+	TownActions.deputy.scout_perimeter(test_deputy)
 	
 	# Test 3: deliver_warrant
 	print("  Testing deliver_warrant...")
-	TownActions.deliver_warrant(test_deputy, test_brigand)
+	TownActions.deputy.deliver_warrant(test_deputy, test_brigand)
 	
 	# Test 4: guard_prisoner
 	print("  Testing guard_prisoner...")
 	# Marquer le brigand comme prisonnier
 	GameState.mark_prisoner(test_brigand.get("name", ""))
-	TownActions.guard_prisoner(test_deputy)
+	TownActions.deputy.guard_prisoner(test_deputy)
 	
 	# Restaurer
 	GameState.characters = temp_characters
@@ -372,19 +372,19 @@ func _test_townfolk_actions() -> void:
 	
 	# Test 1: report_crime
 	print("  Testing report_crime...")
-	TownActions.report_crime(test_townfolk)
+	TownActions.citizen.report_crime(test_townfolk)
 	
 	# Test 2: gossip
 	print("  Testing gossip...")
-	TownActions.gossip(test_townfolk)
+	TownActions.citizen.gossip(test_townfolk)
 	
 	# Test 3: form_militia
 	print("  Testing form_militia...")
-	TownActions.form_militia(test_townfolk)
+	TownActions.citizen.form_militia(test_townfolk)
 	
 	# Test 4: protest
 	print("  Testing protest...")
-	TownActions.protest(test_townfolk)
+	TownActions.citizen.protest(test_townfolk)
 	
 	# Restaurer
 	GameState.town_morale = old_morale
@@ -423,23 +423,23 @@ func _test_bounty_hunter_actions() -> void:
 	
 	# Test 1: track_bounty (action historique BG-001-P1)
 	print("  Testing track_bounty...")
-	TownActions.track_bounty(test_hunter, test_target)
+	TownActions.bounty_hunter.track_bounty(test_hunter, test_target)
 	
 	# Test 2: investigate_bounty
 	print("  Testing investigate_bounty...")
-	TownActions.investigate_bounty(test_hunter, test_target)
+	TownActions.bounty_hunter.investigate_bounty(test_hunter, test_target)
 	
 	# Test 3: set_trap
 	print("  Testing set_trap...")
-	TownActions.set_trap(test_hunter)
+	TownActions.bounty_hunter.set_trap(test_hunter)
 	
 	# Test 4: follow_trail
 	print("  Testing follow_trail...")
-	TownActions.follow_trail(test_hunter)
+	TownActions.bounty_hunter.follow_trail(test_hunter)
 	
 	# Test 5: negotiate_surrender
 	print("  Testing negotiate_surrender...")
-	TownActions.negotiate_surrender(test_hunter, test_target)
+	TownActions.bounty_hunter.negotiate_surrender(test_hunter, test_target)
 	
 	assert(GameState.crime_level >= 0 && GameState.crime_level <= 100, "crime_level doit rester dans [0, 100]")
 	assert(GameState.town_morale >= 0 && GameState.town_morale <= 100, "town_morale doit rester dans [0, 100]")
@@ -477,11 +477,11 @@ func _test_integration() -> void:
 	var test_townfolk = {"name": "IntTownfolk", "role_id": "", "state": "alive", "money": 50, "bounty": 0, "wounds": 0}
 	
 	# Exécuter une action de chaque rôle
-	TownActions.patrol_town(test_sheriff)
-	TownActions.ambush_merchants(test_brigand)
-	TownActions.negotiate_prices(test_merchant)
-	TownActions.assist_arrest(test_deputy)
-	TownActions.report_crime(test_townfolk)
+	TownActions.sheriff.patrol_town(test_sheriff)
+	TownActions.brigand.ambush_merchants(test_brigand)
+	TownActions.merchant.negotiate_prices(test_merchant)
+	TownActions.deputy.assist_arrest(test_deputy)
+	TownActions.citizen.report_crime(test_townfolk)
 	
 	# Vérifier que toutes les variables globales sont toujours dans les limites
 	assert(GameState.town_morale >= 0 && GameState.town_morale <= 100, "town_morale doit rester dans [0, 100]")

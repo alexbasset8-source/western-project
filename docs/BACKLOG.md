@@ -30,17 +30,17 @@ Chaque rôle doit offrir une expérience de jeu suffisamment riche, variée et s
 
 **Statut**
 
-En cours (Phase 1/6)
+En cours (Phase 2/6 terminée — passage en Phase 3)
 
 **Sous-tâches** :
-- [ ] **BG-001-P1** : Fondations (variables globales + intégration basique) [P0] - Ticket créé dans `BG-001_PHASE1_TICKET.md`
-- [ ] BG-001-P2 : Ajout d'actions variées par rôle (5+ actions par rôle) [P1]
+- [x] **BG-001-P1** : Fondations (variables globales + intégration basique) [P0] - Ticket créé dans `BG-001_PHASE1_TICKET.md`
+- [x] BG-001-P2 : Ajout d'actions variées par rôle (5+ actions par rôle) [P1] - Voir `BG-001_PHASE2_TICKET.md`, `TCK4.md`, `TCK5.md`. Sheriff/Marchand/Brigand/Chasseur de primes = 5 actions, Adjoint/Habitant = 4 actions (prévu ainsi). Écarts assumés : voir DEC-011.
 - [ ] BG-001-P3 : Événements dynamiques (10+ nouveaux événements réactifs) [P1]
 - [ ] BG-001-P4 : Impact des variables globales sur le gameplay (effets durables) [P2]
 - [ ] BG-001-P5 : Tests et ajustements finaux [P2]
 - [ ] BG-001-P6 : Validation utilisateur (sessions de 2 heures) [P2]
 
-**Voir** : `BG-001_PHASE1_TICKET.md` pour le détail de la Phase 1.
+**Voir** : `BG-001_PHASE1_TICKET.md` pour le détail de la Phase 1, `BG-001_PHASE2_TICKET.md` pour la Phase 2.
 
 ---
 
@@ -380,12 +380,18 @@ Musée de la ville retraçant son histoire (objets, événements).
 ---
 # Dette technique
 
-Aucune dette technique documentée.
+## Résolue
+- ~~**`scripts/TownActions.gd` dépasse largement le seuil de taille du projet**~~ **Résolu le 31/07/2026** : découpé en une façade (96 lignes) + 6 modules par rôle (96-265 lignes chacun). Voir CHANGELOG `[0.6.4]`.
+- ~~**Les PNJ simulés n'utilisent que les actions historiques**~~ **Résolu le 31/07/2026** : `EventManager.gd` tire maintenant un personnage vivant ayant un rôle, puis une action au hasard parmi celles de `PlayerActionManager.ROLE_ACTIONS` (toutes les ~28 actions des 6 rôles), au lieu des 3 actions historiques uniquement. Voir CHANGELOG `[0.6.5]`.
+
+## Restante
+- **Cooldown des actions de rôle** : un seul cooldown global (4s réelles) par joueur, partagé par toutes les actions, au lieu d'un cooldown par action/personnage en tours (3-10) comme prévu initialement dans `BG-001_PHASE2_TICKET.md`. Décision assumée, voir `DECISIONS.md` DEC-011. À corriger plus tard.
+- **Pas de raccourcis clavier dédiés (1-5) pour choisir une action dans le menu de rôle** : un menu cliquable a été implémenté à la place (TCK4/TCK5). Voir DEC-011.
 
 ---
 # Bugs connus
 
-Aucun bug documenté.
+Aucun bug connu actuellement documenté. Bugs latents corrigés récemment (voir CHANGELOG `[0.6.1]`/`[0.6.2]`) : appel à une méthode `PrisonManager` inexistante dans `guard_prisoner()`, message sans substitution dans `organize_posse()`, syntaxe `async func` invalide dans deux fichiers de test.
 
 ---
 # Notes
@@ -401,3 +407,4 @@ Une tâche ne peut entrer dans un sprint que si :
 ## **📌 Historique des modifications**
 
 - **26/07/2026** : Révision de BG-001 pour aligner sur une vision long terme (2 heures par rôle au lieu de 30 minutes). Ajout des sous-tâches BG-001-P1 à BG-001-P6. Mise à jour de BG-004 pour clarifier son lien avec BG-001-P3.
+- **31/07/2026** : BG-001-P1 et BG-001-P2 marqués terminés (TCK3, TCK4, TCK5, complément Chasseur de primes). Ajout de la dette technique réelle (taille de `TownActions.gd`, cooldown global, absence de raccourcis clavier, PNJ n'utilisant pas les nouvelles actions). Passage en Phase 3 (BG-001-P3).

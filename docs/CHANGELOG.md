@@ -7,6 +7,39 @@
 
 ---
 
+## [0.6.5] - 2026-07-31
+
+### 🔧 Modifié
+- **Dette technique résolue** : les PNJ simulés utilisent désormais **toutes** les actions de rôle (~28, via `PlayerActionManager.ROLE_ACTIONS`) et non plus seulement les 3 actions historiques (`transport_goods`, `attack_convoy`, `track_bounty`). `EventManager.gd` tire un personnage vivant ayant un rôle, puis une de ses actions au hasard, et l'exécute via `TownActions.get_module(role_id)`.
+- L'événement `"role_action"` remplace les anciens `"transport_goods"`/`"convoy_attack"`/`"arrest"` dans la table de tirage, avec un poids ×3 pour conserver une fréquence d'activité liée aux rôles proche de l'ancien système.
+- Fonction `_random_wanted_brigand()` supprimée (devenue orpheline).
+
+### ⚠️ À surveiller
+Le monde simulé peut se comporter différemment qu'avant (plus de variété d'actions PNJ, y compris des actions à fort impact comme `enforce_curfew` ou `extort_protection_money`). Pas d'ajustement d'équilibrage effectué ici — à surveiller en jeu.
+
+---
+
+## [0.6.4] - 2026-07-31
+
+### 🔧 Modifié
+- **Dette technique résolue** : `scripts/TownActions.gd` (1419 lignes) découpé en 7 fichiers — une façade légère (`TownActions.gd`, 96 lignes) qui conserve les événements mondiaux génériques et les fonctions de recherche de cible partagées, plus 6 modules par rôle (`TownActionsSheriff.gd`, `TownActionsDeputy.gd`, `TownActionsMerchant.gd`, `TownActionsBountyHunter.gd`, `TownActionsBrigand.gd`, `TownActionsCitizen.gd`), tous entre 96 et 265 lignes — sous le seuil "idéal" de 300 lignes de `TECHNICAL_ARCHITECTURE.md`.
+- Les actions sont maintenant appelées via `TownActions.<role>.<action>()` (ex: `TownActions.sheriff.attempt_arrest(...)`) au lieu de `TownActions.<action>()`. Mis à jour dans `EventManager.gd`, `PlayerActionManager.gd` (dispatch via `TownActions.get_module(role_id)`) et `tests/test_town_actions_p2.gd`.
+- Aucun changement de comportement : refactorisation pure, mêmes fonctions, mêmes corps, seulement réorganisées.
+
+---
+
+## [0.6.3] - 2026-07-31
+
+### 📝 Documentation
+- **`docs/BACKLOG.md`** : BG-001-P1 et BG-001-P2 marqués terminés. Section "Dette technique" renseignée (taille de `TownActions.gd` = 1419 lignes, cooldown global, absence de raccourcis clavier, PNJ n'utilisant pas les actions Phase 2).
+- **`docs/DECISIONS.md`** : ajout de **DEC-011**, qui acte le choix d'un cooldown global (par joueur) et d'un menu cliquable plutôt qu'un cooldown par action/tours et des raccourcis 1-5.
+- **`docs/GAME_DESIGN_DOCUMENT.md`** (→ v0.3) : ajout de la liste d'actions et du tableau comparatif du Chasseur de primes (absents jusqu'ici, contrairement aux 5 autres rôles), ajout d'Habitant à la liste des rôles limités, nouvelle entrée d'historique de version.
+
+### 🔍 Audit
+Vérification croisée de tous les documents du projet (`BACKLOG`, `CHANGELOG`, `DECISIONS`, `GAME_DESIGN_DOCUMENT`, `TECHNICAL_ARCHITECTURE`, `Roadmap`, `PROJECT_MANAGEMENT`) après clôture de BG-001-P2, conformément à `PROJECT_MANAGEMENT.md` ("Toute évolution importante doit mettre à jour GAME_DESIGN_DOCUMENT.md, TECHNICAL_ARCHITECTURE.md, DECISIONS.md, BACKLOG.md, CHANGELOG.md").
+
+---
+
 ## [0.6.2] - 2026-07-31
 
 ### 🐛 Corrigé
@@ -217,9 +250,9 @@ Avec ce correctif, les 6 rôles (Sheriff, Marchand, Chasseur de primes, Brigand,
 ## **📅 Roadmap des prochaines versions**
    **Version** | **Date prévue** | **Contenu principal** | **Statut** |
  |-------------|-----------------|-----------------------|------------|
- | 0.5.1 | 27 juillet 2026 | Intégration des variables globales (Phase 1 BG-001) | 🟡 En développement |
- | 0.6.0 | Août 2026 | Actions variées par rôle (Phase 2 BG-001) | 📅 Planifié |
- | 0.7.0 | Août 2026 | Événements dynamiques (Phase 3 BG-001) | 📅 Planifié |
+ | 0.5.1 | 27 juillet 2026 | Intégration des variables globales (Phase 1 BG-001) | ✅ Terminé |
+ | 0.6.0 - 0.6.3 | 31 juillet 2026 | Actions variées par rôle (Phase 2 BG-001), gestion de fenêtres, nouveaux rôles | ✅ Terminé |
+ | 0.7.0 | Août 2026 | Événements dynamiques (Phase 3 BG-001) | 🟡 En développement |
  | 0.8.0 | Septembre 2026 | Vertical Slice (Phase 6 Roadmap) | 📅 Planifié |
 
 ---

@@ -3,7 +3,8 @@ extends Node
 const ACTION_COOLDOWN := 4.0
 
 ## Actions disponibles par role, presentees dans un menu au joueur (TCK4/TCK5).
-## Toutes les fonctions listees existent deja dans TownActions.gd (BG-001-P2) ;
+## Toutes les fonctions listees existent dans les modules TownActions*.gd
+## (TownActions.sheriff, TownActions.deputy, etc. - voir TownActions.gd) ;
 ## ce dictionnaire est la seule source de verite pour savoir quel role voit
 ## quelles actions - un Sheriff ne voit donc jamais les actions d'un Brigand.
 const ROLE_ACTIONS := {
@@ -119,9 +120,10 @@ func perform_named_action(action_id: String) -> void:
 		GameState.add_event("Vous n'etes pas au bon endroit pour agir.")
 		GameState.add_event(ZoneManager.get_zone_requirement_hint(role_id))
 		return
-	if not TownActions.has_method(action_id):
+	var module = TownActions.get_module(role_id)
+	if module == null or not module.has_method(action_id):
 		return
-	TownActions.call(action_id, player)
+	module.call(action_id, player)
 	_start_cooldown()
 	SaveManager.save_game()
 
