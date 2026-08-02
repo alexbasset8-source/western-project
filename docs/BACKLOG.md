@@ -30,12 +30,12 @@ Chaque rôle doit offrir une expérience de jeu suffisamment riche, variée et s
 
 **Statut**
 
-En cours (Phase 2/6 terminée — passage en Phase 3)
+En cours (Phase 3/6 terminée — passage en Phase 4)
 
 **Sous-tâches** :
 - [x] **BG-001-P1** : Fondations (variables globales + intégration basique) [P0] - Ticket créé dans `BG-001_PHASE1_TICKET.md`
 - [x] BG-001-P2 : Ajout d'actions variées par rôle (5+ actions par rôle) [P1] - Voir `BG-001_PHASE2_TICKET.md`, `TCK4.md`, `TCK5.md`. Sheriff/Marchand/Brigand/Chasseur de primes = 5 actions, Adjoint/Habitant = 4 actions (prévu ainsi). Écarts assumés : voir DEC-011.
-- [ ] BG-001-P3 : Événements dynamiques (10+ nouveaux événements réactifs) [P1]
+- [x] BG-001-P3 : Système de réputation dynamique [P0] - Voir `BG-001_PHASE3_TICKET.md`. Décroissance naturelle (1 point/heure), vérification des seuils pour bloquer/débloquer des actions, affichage UI avec icônes.
 - [ ] BG-001-P4 : Impact des variables globales sur le gameplay (effets durables) [P2]
 - [ ] BG-001-P5 : Tests et ajustements finaux [P2]
 - [ ] BG-001-P6 : Validation utilisateur (sessions de 2 heures) [P2]
